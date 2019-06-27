@@ -135,7 +135,7 @@ def train_unet():
 
     BATCH_SIZE = 5
     # 20エポック回せば十分
-    NUM_EPOCH = 1000
+    NUM_EPOCH = 10
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
