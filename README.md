@@ -1,4 +1,1 @@
-# unet
-for unet
-
-## math is fun :D
+# U-Net architecture
