@@ -148,7 +148,7 @@ def predict():
     import cv2
 
     # test内の画像で予測
-    X_test, file_names = load_x('Dataset' + os.sep + 'test' + os.sep + 'image')
+    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
     # X_test, file_names = load_X('testData' + os.sep + 'left_images')
 
     input_channel_count = 1
@@ -162,7 +162,7 @@ def predict():
 
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
-        img = cv2.imread('Dataset' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i],0)
+        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i],0)
         # img = cv2.imread('testData' + os.sep + 'left_images' + os.sep + file_names[i])
 
         y = cv2.resize(y, (img.shape[1], img.shape[0]))
