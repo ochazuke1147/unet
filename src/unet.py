@@ -115,13 +115,13 @@ class UNet(object):
 # U-Netをtrainingする関数
 def train_unet():
     # 訓練用imageデータ読み込み
-    x_train, file_names = load_x('Dataset' + os.sep + 'training' + os.sep + 'image')
+    x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
     # 訓練用labelデータ読み込み
-    y_train = load_y('Dataset' + os.sep + 'training' + os.sep + 'label')
+    y_train = load_y('datasets' + os.sep + 'training' + os.sep + 'label')
     # 検証用imageデータ読み込み
-    x_validation, file_names2 = load_x('Dataset' + os.sep + 'test' + os.sep + 'image')
+    x_validation, file_names2 = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
     # 検証用labelデータ読み込み
-    y_validation = load_y('Dataset' + os.sep + 'test' + os.sep + 'label')
+    y_validation = load_y('datasets' + os.sep + 'test' + os.sep + 'label')
 
     # 入力はグレースケール1チャンネル
     input_channel_count = 1
