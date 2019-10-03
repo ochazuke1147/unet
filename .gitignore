@@ -4,3 +4,4 @@
 datasets/
 prediction/
 unet_weights.hdf5
+datasets(original)/

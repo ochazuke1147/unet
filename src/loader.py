@@ -16,7 +16,7 @@ def load_file(folder_path):
 
 
 # 受け取ったパス下の静脈画像をグレースケールで読み込み,ファイル名とセットで返す関数
-def load_x(folder_path):
+def load_x(folder_path, flip=False):
     import os
     import cv2
     from src.unet import IMAGE_SIZE
@@ -27,6 +27,8 @@ def load_x(folder_path):
     for i, image_file in enumerate(file_names):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
+        if flip:
+            image = cv2.flip(image, 1)
         image = image[:, :, np.newaxis]
         images[i] = normalize_x(image)
     return images, file_names
