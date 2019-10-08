@@ -135,7 +135,7 @@ def train_unet():
 
     BATCH_SIZE = 5
     # 20エポック回せば十分
-    NUM_EPOCH = 300
+    NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -148,7 +148,7 @@ def predict():
     import cv2
 
     # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
+    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', True)
     # X_test, file_names = load_X('testData' + os.sep + 'left_images')
 
     input_channel_count = 1
@@ -162,10 +162,10 @@ def predict():
 
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
-        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i],0)
+        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
         # img = cv2.imread('testData' + os.sep + 'left_images' + os.sep + file_names[i])
 
-        y = cv2.resize(y, (img.shape[1], img.shape[0]))
+        y = cv2.resize(y, (img.shape[0], img.shape[1]))
         y_dn = denormalize_y(y)
 
         cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
