@@ -1,6 +1,5 @@
 # 画像をロードする関数群
 import numpy as np
-
 from src.normalize import normalize_x, normalize_y
 
 
@@ -16,7 +15,7 @@ def load_file(folder_path):
 
 
 # 受け取ったパス下の静脈画像をグレースケールで読み込み,ファイル名とセットで返す関数
-def load_x(folder_path, rotate=False):
+def load_x(folder_path, rotate=False, theta=0):
     import os
     import cv2
     from src.unet import IMAGE_SIZE
@@ -26,9 +25,10 @@ def load_x(folder_path, rotate=False):
     images = np.zeros((len(file_names), IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
     for i, image_file in enumerate(file_names):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
-        image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         if rotate:
-            image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            cropped = crop_image(image, 100)
+            image = rotate_image(cropped, theta)
+        image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_x(image)
     return images, file_names
@@ -49,3 +49,26 @@ def load_y(folder_path):
         image = image[:, :, np.newaxis]
         images[i] = normalize_y(image)
     return images
+
+
+# 回転前に正方形領域をcropする関数
+def crop_image(image, width_start):
+    import cv2
+    size = image.shape[0]
+    print(image.shape)
+    cropped = image[0:size, width_start:width_start+size]
+    return cropped
+
+
+# グレースケール画像を回転して返す関数
+def rotate_image(image, theta):
+    import cv2
+    scale = 1.0
+    rotation_center = (int(image.shape[0]/2), int(image.shape[1]/2))
+
+    rotation_matrix = cv2.getRotationMatrix2D(rotation_center, theta, scale)
+    rotated = cv2.warpAffine(image, rotation_matrix, image.shape, flags=cv2.INTER_CUBIC)
+
+    cv2.imshow('rotated', rotated)
+    cv2.waitKey(0)
+    return rotated

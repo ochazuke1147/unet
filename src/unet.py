@@ -5,9 +5,10 @@ from keras.layers.convolutional import Conv2D, ZeroPadding2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.optimizers import Adam
 import os
-from src.loader import load_x, load_y
+from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
 from src.normalize import denormalize_y
+import numpy as np
 
 # imageは(256, 256, 1)で読み込み
 IMAGE_SIZE = 256
@@ -147,8 +148,10 @@ def train_unet():
 def predict():
     import cv2
 
+    rotation = True
+
     # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', True)
+    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation, 45)
     # X_test, file_names = load_X('testData' + os.sep + 'left_images')
 
     input_channel_count = 1
@@ -165,7 +168,11 @@ def predict():
         img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
         # img = cv2.imread('testData' + os.sep + 'left_images' + os.sep + file_names[i])
 
-        y = cv2.resize(y, (img.shape[0], img.shape[1]))
+        if rotation:
+            y = cv2.resize(y, (img.shape[0], img.shape[0]))
+        else:
+            y = cv2.resize(y, (img.shape[0], img.shape[1]))
+
         y_dn = denormalize_y(y)
 
         cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
@@ -173,3 +180,8 @@ def predict():
         # img_gt = cv2.imread('testData' + os.sep + 'left_groundTruth' + os.sep + file_names[i])
         # img_compare = cv2.hconcat([img_pre, img_gt])
         # cv2.imwrite('compare' + str(i) + '.png', img_compare)
+
+
+# test画像を回転させながら予測を行う関数
+def predict_rotation():
+    return 0
