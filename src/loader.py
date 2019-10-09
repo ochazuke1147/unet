@@ -35,7 +35,7 @@ def load_x(folder_path, rotate=False, theta=0):
 
 
 # ラベル画像をグレースケールで読み込んで返す関数
-def load_y(folder_path):
+def load_y(folder_path, rotate=False, theta=0):
     import os
     import cv2
     from src.unet import IMAGE_SIZE
@@ -45,6 +45,9 @@ def load_y(folder_path):
     images = np.zeros((len(image_files), IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
     for i, image_file in enumerate(image_files):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
+        if rotate:
+            cropped = crop_image(image, 100)
+            image = rotate_image(cropped, theta)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_y(image)
@@ -54,8 +57,8 @@ def load_y(folder_path):
 # 回転前に正方形領域をcropする関数
 def crop_image(image, width_start):
     import cv2
+
     size = image.shape[0]
-    print(image.shape)
     cropped = image[0:size, width_start:width_start+size]
     return cropped
 
@@ -63,12 +66,10 @@ def crop_image(image, width_start):
 # グレースケール画像を回転して返す関数
 def rotate_image(image, theta):
     import cv2
+
     scale = 1.0
     rotation_center = (int(image.shape[0]/2), int(image.shape[1]/2))
-
     rotation_matrix = cv2.getRotationMatrix2D(rotation_center, theta, scale)
     rotated = cv2.warpAffine(image, rotation_matrix, image.shape, flags=cv2.INTER_CUBIC)
 
-    cv2.imshow('rotated', rotated)
-    cv2.waitKey(0)
     return rotated

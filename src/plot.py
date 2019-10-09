@@ -29,3 +29,14 @@ def plot_loss_accuracy(history):
     plt.show()
     fig.savefig('./loss_accuracy.png')
     plt.close()
+
+
+# 回転角度に対するdice係数の推移をプロットする関数
+def plot_dice_coefficient(thetas, dices):
+    plt.plot(thetas, dices, label='original dataset')
+    plt.title('dice coefficient change with rotation')
+    plt.xlabel(r'$\theta$')
+    plt.ylabel('dice coefficient')
+    plt.show()
+    plt.savefig('./dice_change.png')
+    plt.close()
