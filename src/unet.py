@@ -194,7 +194,7 @@ def predict_rotation():
     model.load_weights('unet_weights.hdf5')
     BATCH_SIZE = 12
 
-    thetas = range(0, 361, 15)
+    thetas = range(0, 361, 180)
     dice_means = []
 
     for theta in thetas:
@@ -209,12 +209,22 @@ def predict_rotation():
         print(len(X_test), len(y_test))
 
         for i, y in enumerate(Y_pred):
+            img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
             print(y_test[i].shape, y.shape)
             print(K.get_value(dice_coefficient(y_test[i], y)))
             dice_sum += K.get_value(dice_coefficient(y_test[i], y))
 
+            if rotation:
+                y = cv2.resize(y, (img.shape[0], img.shape[0]))
+            else:
+                y = cv2.resize(y, (img.shape[0], img.shape[1]))
+
             y_dn = denormalize_y(y)
 
+            cv2.imshow('prediction', y)
+            cv2.imshow('ground truth', y_test[i])
+
+            cv2.waitKey(0)
 
         dice_means.append(dice_sum/len(Y_pred))
 
