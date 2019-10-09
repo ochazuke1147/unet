@@ -137,7 +137,7 @@ def train_unet():
 
     BATCH_SIZE = 5
     # 20エポック回せば十分
-    NUM_EPOCH = 500
+    NUM_EPOCH = 50
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -194,7 +194,7 @@ def predict_rotation():
     model.load_weights('unet_weights.hdf5')
     BATCH_SIZE = 12
 
-    thetas = range(0, 361, 180)
+    thetas = range(0, 181, 90)
     dice_means = []
 
     for theta in thetas:
@@ -214,15 +214,17 @@ def predict_rotation():
             print(K.get_value(dice_coefficient(y_test[i], y)))
             dice_sum += K.get_value(dice_coefficient(y_test[i], y))
 
-            if rotation:
-                y = cv2.resize(y, (img.shape[0], img.shape[0]))
-            else:
-                y = cv2.resize(y, (img.shape[0], img.shape[1]))
+            #if rotation:
+                #y = cv2.resize(y, (img.shape[0], img.shape[0]))
+            #else:
+                #y = cv2.resize(y, (img.shape[0], img.shape[1]))
 
             y_dn = denormalize_y(y)
 
             cv2.imshow('prediction', y)
             cv2.imshow('ground truth', y_test[i])
+
+            print(y)
 
             cv2.waitKey(0)
 
@@ -233,3 +235,4 @@ def predict_rotation():
     plot_dice_coefficient(thetas, dice_means)
 
     return 0
+

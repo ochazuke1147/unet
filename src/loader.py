@@ -26,8 +26,8 @@ def load_x(folder_path, rotate=False, theta=0):
     for i, image_file in enumerate(file_names):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
         if rotate:
-            cropped = crop_image(image, 100)
-            image = rotate_image(cropped, theta)
+            image = padding_image(image)
+            image = rotate_image(image, theta)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_x(image)
@@ -46,8 +46,8 @@ def load_y(folder_path, rotate=False, theta=0):
     for i, image_file in enumerate(image_files):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
         if rotate:
-            cropped = crop_image(image, 100)
-            image = rotate_image(cropped, theta)
+            image = padding_image(image)
+            image = rotate_image(image, theta)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_y(image)
@@ -73,3 +73,17 @@ def rotate_image(image, theta):
     rotated = cv2.warpAffine(image, rotation_matrix, image.shape, flags=cv2.INTER_CUBIC)
 
     return rotated
+
+
+# 黒背景を追加して返す関数
+def padding_image(image):
+    import cv2
+    height, width = image.shape[:2]
+    size = 1280
+    start_height, fin_height = int((size - height)/2), int((size + height)/2)
+    start_width, fin_width = int((size - width)/2), int((size + width)/2)
+
+    background = cv2.resize(np.zeros((1, 1, 1), np.uint8), (size, size))
+    background[start_height:fin_height, start_width:fin_width] = image
+
+    return background

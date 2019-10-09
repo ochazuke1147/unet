@@ -33,10 +33,30 @@ def plot_loss_accuracy(history):
 
 # 回転角度に対するdice係数の推移をプロットする関数
 def plot_dice_coefficient(thetas, dices):
+    fig = plt.figure()
     plt.plot(thetas, dices, label='original dataset')
     plt.title('dice coefficient change with rotation')
     plt.xlabel(r'$\theta$')
     plt.ylabel('dice coefficient')
     plt.show()
-    plt.savefig('./dice_change.png')
+    fig.savefig('./dice_change.png')
     plt.close()
+
+
+def show_hist(gray_image):
+    import cv2
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    hist = cv2.calcHist([gray_image], [0], None, histSize=[256], ranges=[0, 256])
+    hist = hist.squeeze(axis=-1)
+
+    fig, ax = plt.subplots()
+    ax.fill_between(np.arange(256), hist, color="black")
+    ax.set_xticks([0, 255])
+    ax.set_xlim([0, 255])
+    ax.set_xlabel("Pixel Value")
+
+    plt.show()
+    plt.close()
+    print(hist)
