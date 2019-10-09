@@ -5,9 +5,11 @@ from keras.layers.convolutional import Conv2D, ZeroPadding2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.optimizers import Adam
 import os
-from src.loader import load_x, load_y
+from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
 from src.normalize import denormalize_y
+import numpy as np
+from src.plot import *
 
 # imageは(256, 256, 1)で読み込み
 IMAGE_SIZE = 256
@@ -135,7 +137,7 @@ def train_unet():
 
     BATCH_SIZE = 5
     # 20エポック回せば十分
-    NUM_EPOCH = 10
+    NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -147,9 +149,9 @@ def train_unet():
 def predict():
     import cv2
 
+    rotation = True
     # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
-    # X_test, file_names = load_X('testData' + os.sep + 'left_images')
+    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation, 45)
 
     input_channel_count = 1
     output_channel_count = 1
@@ -162,14 +164,62 @@ def predict():
 
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
-        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i],0)
-        # img = cv2.imread('testData' + os.sep + 'left_images' + os.sep + file_names[i])
+        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
 
-        y = cv2.resize(y, (img.shape[1], img.shape[0]))
+        if rotation:
+            y = cv2.resize(y, (img.shape[0], img.shape[0]))
+        else:
+            y = cv2.resize(y, (img.shape[0], img.shape[1]))
+
         y_dn = denormalize_y(y)
-
         cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
         # img_pre = cv2.imread('prediction' + str(i) + '.png')
-        # img_gt = cv2.imread('testData' + os.sep + 'left_groundTruth' + os.sep + file_names[i])
         # img_compare = cv2.hconcat([img_pre, img_gt])
         # cv2.imwrite('compare' + str(i) + '.png', img_compare)
+
+    return 0
+
+
+# test画像を回転させながら予測を行う関数
+def predict_rotation():
+    import cv2
+    import keras.backend as K
+
+
+    input_channel_count = 1
+    output_channel_count = 1
+    first_layer_filter_count = 64
+    network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
+    model = network.get_model()
+    model.load_weights('unet_weights.hdf5')
+    BATCH_SIZE = 12
+
+    thetas = range(0, 361, 15)
+    dice_means = []
+
+    for theta in thetas:
+        dice_sum = 0.0
+        rotation = True
+        # test内の画像で予測
+        X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation, theta)
+        y_test = load_y('datasets' + os.sep + 'test' + os.sep + 'label', rotation, theta)
+
+        Y_pred = model.predict(X_test, BATCH_SIZE)
+
+        print(len(X_test), len(y_test))
+
+        for i, y in enumerate(Y_pred):
+            print(y_test[i].shape, y.shape)
+            print(K.get_value(dice_coefficient(y_test[i], y)))
+            dice_sum += K.get_value(dice_coefficient(y_test[i], y))
+
+            y_dn = denormalize_y(y)
+
+
+        dice_means.append(dice_sum/len(Y_pred))
+
+    print(dice_means)
+
+    plot_dice_coefficient(thetas, dice_means)
+
+    return 0
