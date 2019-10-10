@@ -149,9 +149,9 @@ def train_unet():
 def predict():
     import cv2
 
-    rotation = True
+    rotation = False
     # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation, 45)
+    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
 
     input_channel_count = 1
     output_channel_count = 1
@@ -169,7 +169,7 @@ def predict():
         if rotation:
             y = cv2.resize(y, (img.shape[0], img.shape[0]))
         else:
-            y = cv2.resize(y, (img.shape[0], img.shape[1]))
+            y = cv2.resize(y, (img.shape[1], img.shape[0]))
 
         y_dn = denormalize_y(y)
         cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
@@ -194,7 +194,7 @@ def predict_rotation():
     model.load_weights('unet_weights.hdf5')
     BATCH_SIZE = 12
 
-    thetas = range(0, 181, 90)
+    thetas = range(0, 361, 15)
     dice_means = []
 
     for theta in thetas:
@@ -224,9 +224,7 @@ def predict_rotation():
             cv2.imshow('prediction', y)
             cv2.imshow('ground truth', y_test[i])
 
-            print(y)
-
-            cv2.waitKey(0)
+            # cv2.waitKey(0)
 
         dice_means.append(dice_sum/len(Y_pred))
 

@@ -35,9 +35,9 @@ def plot_loss_accuracy(history):
 def plot_dice_coefficient(thetas, dices):
     fig = plt.figure()
     plt.plot(thetas, dices, label='original dataset')
-    plt.title('dice coefficient change with rotation')
+    #plt.title('dice coefficinet change')
     plt.xlabel(r'$\theta$')
-    plt.ylabel('dice coefficient')
+    plt.ylabel('Similarity')
     plt.show()
     fig.savefig('./dice_change.png')
     plt.close()
