@@ -43,6 +43,19 @@ def plot_dice_coefficient(thetas, dices):
     plt.close()
 
 
+# plot_dice_coefficient()の拡張版
+def plot_dice_coefficient_compare(thetas1, dices1, label1, thetas2, dices2, label2):
+    fig = plt.figure()
+    plt.plot(thetas1, dices1, label=label1)
+    plt.plot(thetas2, dices2, label=label2)
+    plt.xlabel(r'$\theta$')
+    plt.ylabel('Similarity')
+    plt.legend()
+    plt.show()
+    fig.savefig('./dice_change.png')
+    plt.close()
+
+
 def show_hist(gray_image):
     import cv2
     import matplotlib.pyplot as plt

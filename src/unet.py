@@ -116,14 +116,32 @@ class UNet(object):
 
 # U-Netをtrainingする関数
 def train_unet():
-    # 訓練用imageデータ読み込み
-    x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
-    # 訓練用labelデータ読み込み
-    y_train = load_y('datasets' + os.sep + 'training' + os.sep + 'label')
-    # 検証用imageデータ読み込み
-    x_validation, file_names2 = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
-    # 検証用labelデータ読み込み
-    y_validation = load_y('datasets' + os.sep + 'test' + os.sep + 'label')
+    rotation = True
+    theta_min = 0
+    theta_max = 360
+    theta_interval = 45
+
+    training_path = 'datasets' + os.sep + 'training'
+    validation_path = 'datasets' + os.sep + 'test'
+
+    if rotation:
+        # 訓練用imageデータ読み込み
+        x_train, file_names = load_x_rotation(training_path + os.sep + 'image', theta_min, theta_max, theta_interval)
+        # 訓練用labelデータ読み込み
+        y_train = load_y_rotation(training_path + os.sep + 'label', theta_min, theta_max, theta_interval)
+        # 検証用imageデータ読み込み
+        x_validation, file_names2 = load_x_rotation(validation_path + os.sep + 'image', theta_min, theta_max, theta_interval)
+        # 検証用labelデータ読み込み
+        y_validation = load_y_rotation(validation_path + os.sep + 'label', theta_min ,theta_max, theta_interval)
+    else:
+        # 訓練用imageデータ読み込み
+        x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
+        # 訓練用labelデータ読み込み
+        y_train = load_y('datasets' + os.sep + 'training' + os.sep + 'label')
+        # 検証用imageデータ読み込み
+        x_validation, file_names2 = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
+        # 検証用labelデータ読み込み
+        y_validation = load_y('datasets' + os.sep + 'test' + os.sep + 'label')
 
     # 入力はグレースケール1チャンネル
     input_channel_count = 1
@@ -137,7 +155,7 @@ def train_unet():
 
     BATCH_SIZE = 5
     # 20エポック回せば十分
-    NUM_EPOCH = 50
+    NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -185,7 +203,6 @@ def predict_rotation():
     import cv2
     import keras.backend as K
 
-
     input_channel_count = 1
     output_channel_count = 1
     first_layer_filter_count = 64
@@ -221,8 +238,7 @@ def predict_rotation():
 
             y_dn = denormalize_y(y)
 
-            cv2.imshow('prediction', y)
-            cv2.imshow('ground truth', y_test[i])
+            cv2.imwrite('./prediction/' + file_names[i] + str(theta) + '.png', y_dn)
 
             # cv2.waitKey(0)
 
@@ -230,7 +246,4 @@ def predict_rotation():
 
     print(dice_means)
 
-    plot_dice_coefficient(thetas, dice_means)
-
-    return 0
-
+    return thetas, dice_means

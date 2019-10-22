@@ -28,6 +28,7 @@ def load_x(folder_path, rotate=False, theta=0):
         if rotate:
             image = padding_image(image)
             image = rotate_image(image, theta)
+            cv2.imwrite('./dataset_rotated/image/' + image_file + str(theta) + '.png', image)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_x(image)
@@ -48,6 +49,7 @@ def load_y(folder_path, rotate=False, theta=0):
         if rotate:
             image = padding_image(image)
             image = rotate_image(image, theta)
+            cv2.imwrite('./dataset_rotated/label/' + image_file + str(theta) + '.png', image)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_y(image)
@@ -87,3 +89,31 @@ def padding_image(image):
     background[start_height:fin_height, start_width:fin_width] = image
 
     return background
+
+
+# 指定されたパス下の静脈画像を指定された回転角度で水増ししてファイル名とセットで返す関数
+def load_x_rotation(folder_path, theta_min, theta_max, interval):
+    from src.unet import IMAGE_SIZE
+
+    images = np.zeros((0, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
+    file_names = []
+    for theta in range(theta_min, theta_max, interval):
+        tmp_images, tmp_names = load_x(folder_path, True, theta)
+        images = np.concatenate([images, tmp_images])
+        file_names.append(tmp_names)
+        print(images.shape)
+
+    return images, file_names
+
+
+# 指定されたパス下のラベル画像を指定された回転角度で水増しして返す関数
+def load_y_rotation(folder_path, theta_min, theta_max, interval):
+    from src.unet import IMAGE_SIZE
+
+    images = np.zeros((0, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
+    for theta in range(theta_min, theta_max, interval):
+        tmp_images = load_y(folder_path, True, theta)
+        images = np.concatenate([images, tmp_images])
+        print(images.shape)
+
+    return images
