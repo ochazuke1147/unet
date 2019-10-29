@@ -118,7 +118,7 @@ class UNet(object):
 def train_unet():
     rotation = True
     theta_min = 0
-    theta_max = 360
+    theta_max = 1
     theta_interval = 45
 
     training_path = 'datasets' + os.sep + 'training'
@@ -132,7 +132,7 @@ def train_unet():
         # 検証用imageデータ読み込み
         x_validation, file_names2 = load_x_rotation(validation_path + os.sep + 'image', theta_min, theta_max, theta_interval)
         # 検証用labelデータ読み込み
-        y_validation = load_y_rotation(validation_path + os.sep + 'label', theta_min ,theta_max, theta_interval)
+        y_validation = load_y_rotation(validation_path + os.sep + 'label', theta_min, theta_max, theta_interval)
     else:
         # 訓練用imageデータ読み込み
         x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
@@ -153,7 +153,7 @@ def train_unet():
     model = network.get_model()
     model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-4), metrics=[dice_coefficient, 'accuracy'])
 
-    BATCH_SIZE = 5
+    BATCH_SIZE = 8
     # 20エポック回せば十分
     NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
@@ -203,6 +203,9 @@ def predict_rotation():
     import cv2
     import keras.backend as K
 
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')  # fourccを定義
+    out = cv2.VideoWriter('output.mp4', fourcc, 5.0, (256, 256), isColor=False)  # 動画書込準備
+
     input_channel_count = 1
     output_channel_count = 1
     first_layer_filter_count = 64
@@ -211,7 +214,7 @@ def predict_rotation():
     model.load_weights('unet_weights.hdf5')
     BATCH_SIZE = 12
 
-    thetas = range(0, 361, 15)
+    thetas = range(0, 361, 10)
     dice_means = []
 
     for theta in thetas:
@@ -238,12 +241,20 @@ def predict_rotation():
 
             y_dn = denormalize_y(y)
 
-            cv2.imwrite('./prediction/' + file_names[i] + str(theta) + '.png', y_dn)
+            y_dn_uint8 = y_dn.astype(np.uint8)
+
+            print(file_names[i], theta, y_dn_uint8.dtype)
+
+            out.write(y_dn_uint8)
+            break
+
+            #cv2.imwrite('./prediction/' + file_names[i] + str(theta) + '.png', y_dn)
 
             # cv2.waitKey(0)
 
-        dice_means.append(dice_sum/len(Y_pred))
+        #dice_means.append(dice_sum/len(Y_pred))
 
     print(dice_means)
+    out.release()
 
     return thetas, dice_means
