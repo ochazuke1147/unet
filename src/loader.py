@@ -32,6 +32,7 @@ def load_x(folder_path, rotate=False, theta=0):
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_x(image)
+        #images[i] = image
     return images, file_names
 
 

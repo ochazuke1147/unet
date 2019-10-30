@@ -9,7 +9,7 @@ from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
 from src.normalize import denormalize_y
 import numpy as np
-from src.plot import *
+
 
 # imageは(256, 256, 1)で読み込み
 IMAGE_SIZE = 256
