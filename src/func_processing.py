@@ -53,11 +53,17 @@ def unet_masking(gray_image):
 
     masked = cv2.bitwise_or(masked, mask_rest)
 
-    masked = masked[100:700, 100:700]
+    masked = masked[0:700, 0:700]
 
     boosted = high_boost_filter(masked)
+
+
+    akaze = cv2.AKAZE_create()
+
+    kp1, des1 = akaze.detectAndCompute(boosted, None)
+
+    boosted_akaze = cv2.drawKeypoints(boosted, kp1, None, (0, 0, 255))
 
     cv2.imshow('', boosted)
 
     #cv2.waitKey(0)
-
