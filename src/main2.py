@@ -1,24 +1,18 @@
 import os
 from src.func_processing import *
+from src.authentication import *
 from src.loader import *
 
 
-cap = cv2.VideoCapture('./datasets/movie/okazawa8.avi')
+registrant_video_path = './datasets/movie/kurose_n1.avi'
+user_video_path = './datasets/movie/hayashi_n4.avi'
+db = AkazeDB('myname', registrant_video_path)
 
-print(cap.isOpened())
+db.filter_keypoints(3, 10)
 
-window_name = 'image'
+db.check_matches(user_video_path, 2, 1)
 
-while True:
-    ret, frame = cap.read()
-    if ret:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        unet_masking(frame)
-        #frame = high_boost_filter(frame)
-        #cv2.imshow(window_name, frame)
-        if cv2.waitKey(0) == ord('q'):
-            break
-    else:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+exit()
 
-cv2.destroyWindow(window_name)
+
+cv2.destroyAllWindows()

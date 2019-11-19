@@ -12,11 +12,11 @@ def high_boost_filter(gray_image):
 
     print(gray_image.shape)
 
-    gray_image = np.uint8(gray_image)
+    image = np.uint8(gray_image)
 
     # TODO: 指領域に対してのみヒストグラム平坦化処理を行うように変更する
-    cv2.equalizeHist(gray_image, gray_image)
-    boosted_image = cv2.filter2D(gray_image, -1, kernel)
+    cv2.equalizeHist(image, image)
+    boosted_image = cv2.filter2D(image, -1, kernel)
     median_image = cv2.medianBlur(boosted_image, 5)
 
     return median_image
@@ -53,17 +53,4 @@ def unet_masking(gray_image):
 
     masked = cv2.bitwise_or(masked, mask_rest)
 
-    masked = masked[0:700, 0:700]
-
-    boosted = high_boost_filter(masked)
-
-
-    akaze = cv2.AKAZE_create()
-
-    kp1, des1 = akaze.detectAndCompute(boosted, None)
-
-    boosted_akaze = cv2.drawKeypoints(boosted, kp1, None, (0, 0, 255))
-
-    cv2.imshow('', boosted)
-
-    #cv2.waitKey(0)
+    return masked
