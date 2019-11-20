@@ -93,9 +93,9 @@ class AkazeDB:
     def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=10):
         cap_user = cv2.VideoCapture(video_path)
         cap_user.set(cv2.CAP_PROP_POS_FRAMES, first_frame_number)
-
         check_count = 0
         frame_number = first_frame_number
+        match_numbers = []
         while check_count < check_number:
             frame_number += skip_number
             cap_user.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
@@ -112,6 +112,14 @@ class AkazeDB:
             matches = sorted(matches, key=lambda x: x.distance)
             matches = self.filter_matches(matches)
 
-            print('マッチ数：', len(matches))
+            #print('マッチ数：', len(matches))
+            match_numbers.append(len(matches))
 
             check_count += 1
+
+        return match_numbers
+
+    def check_frequency(self, keypoints_DB_number, match_numbers):
+        frequency = []
+        for i in range(keypoints_DB_number):
+            frequency.append(0)

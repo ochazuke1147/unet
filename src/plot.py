@@ -56,6 +56,19 @@ def plot_dice_coefficient_compare(thetas1, dices1, label1, thetas2, dices2, labe
     plt.close()
 
 
+# マッチ頻度を比較してプロットする関数
+def plot_match_frequency_compare(match_num1, frequency1, label1, match_num2, frequency2, label2):
+    fig = plt.figure()
+    plt.plot(match_num1, frequency1, label=label1)
+    plt.plot(match_num2, frequency2, label=label2)
+    plt.xlabel('Number of matched keypoints')
+    plt.ylabel('Frequency')
+    plt.legend()
+    plt.show()
+    fig.savefig('./match_frequency_compare.png')
+    plt.close()
+
+
 def show_hist(gray_image):
     import cv2
     import matplotlib.pyplot as plt

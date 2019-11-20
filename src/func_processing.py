@@ -21,7 +21,6 @@ def high_boost_filter(gray_image):
 
     return median_image
 
-
 def unet_masking(gray_image):
     size = (gray_image.shape[1], gray_image.shape[0])
     images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)

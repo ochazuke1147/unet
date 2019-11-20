@@ -10,7 +10,8 @@ db = AkazeDB('myname', registrant_video_path)
 
 db.filter_keypoints(3, 10)
 
-db.check_matches(user_video_path, 2, 1)
+print(db.check_matches(user_video_path, 10, 1))
+print(db.check_matches(registrant_video_path, 10, 5))
 
 exit()
 
