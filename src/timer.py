@@ -19,6 +19,7 @@ class Timer:
         self.time_sum += time.time() - self.start
         self.time_sum_minute = self.time_sum // 60
         self.start = time.time()
+        print(self.time_sum, 'seconds elapsed.')
         print(int(self.time_sum_minute), ' minute(s) elapsed.')
         return self.time_sum
 

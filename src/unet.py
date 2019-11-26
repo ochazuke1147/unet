@@ -71,7 +71,7 @@ class UNet(object):
         # (32, 32, 8N)
 
         filter_count = first_layer_filter_count*2
-        dec6 = self._add_decoding_layer(filter_count, True, dec5)
+        dec6 = self._add_decoding_layer(filter_count, True, dec5)  # enc3にdec5から一時変更
         # (64, 64, 2N)
 
         dec6 = concatenate([dec6, enc2], axis=self.CONCATENATE_AXIS)
@@ -122,7 +122,7 @@ def train_unet():
     theta_interval = 45
 
     training_path = 'datasets' + os.sep + 'training'
-    validation_path = 'datasets' + os.sep + 'test'
+    validation_path = 'datasets' + os.sep + 'validation'
 
     if rotation:
         # 訓練用imageデータ読み込み
@@ -155,7 +155,7 @@ def train_unet():
 
     BATCH_SIZE = 8
     # 20エポック回せば十分
-    NUM_EPOCH = 300
+    NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -166,6 +166,7 @@ def train_unet():
 # 学習後のU-Netによる予測を行う関数
 def predict():
     import cv2
+    import keras.backend as K
 
     rotation = False
     # test内の画像で予測
@@ -173,7 +174,7 @@ def predict():
 
     input_channel_count = 1
     output_channel_count = 1
-    first_layer_filter_count = 64
+    first_layer_filter_count = FIRST_LAYER_FILTER_COUNT
     network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
     model = network.get_model()
     model.load_weights('unet_weights.hdf5')
@@ -208,7 +209,7 @@ def predict_rotation():
 
     input_channel_count = 1
     output_channel_count = 1
-    first_layer_filter_count = 64
+    first_layer_filter_count = FIRST_LAYER_FILTER_COUNT
     network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
     model = network.get_model()
     model.load_weights('unet_weights.hdf5')

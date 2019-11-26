@@ -1,4 +1,4 @@
-from keras.layers import Input
+from keras.layers import Input, Dropout
 from keras.layers.core import Activation, Flatten, Reshape
 from keras.layers.convolutional import Convolution2D, Conv2D, MaxPooling2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
@@ -55,16 +55,19 @@ def segnet(input_channel_count, output_channel_count, first_layer_filter_count):
     x = UpSampling2D(size=(2, 2))(x)
     x = Conv2D(256, (3, 3), padding="same")(x)
     x = BatchNormalization()(x)
+    x = Dropout(0.5)(x)
     x = Activation("relu")(x)
 
     x = UpSampling2D(size=(2, 2))(x)
     x = Conv2D(128, (3, 3), padding="same")(x)
     x = BatchNormalization()(x)
+    x = Dropout(0.5)(x)
     x = Activation("relu")(x)
 
     x = UpSampling2D(size=(2, 2))(x)
     x = Conv2D(64, (3, 3), padding="same")(x)
     x = BatchNormalization()(x)
+    # x = Dropout(0.5)(x)
     x = Activation("relu")(x)
 
     x = Conv2D(output_channel_count, (1, 1), padding="valid")(x)
