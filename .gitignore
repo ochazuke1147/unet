@@ -3,6 +3,6 @@
 .idea/tasks.xml
 datasets/
 prediction/
-unet_weights.hdf5
+*_weights.hdf5
 datasets(original)/
 datasets(one finger)/
