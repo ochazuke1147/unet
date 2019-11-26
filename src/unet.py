@@ -92,7 +92,7 @@ class UNet(object):
 
         self.UNet = Model(inputs=input_img, outputs=dec8)
 
-        # self.UNet.summary()
+        self.UNet.summary()
 
     def _add_encoding_layer(self, filter_count, sequence):
         new_sequence = LeakyReLU(0.2)(sequence)
@@ -116,9 +116,9 @@ class UNet(object):
 
 # U-Netをtrainingする関数
 def train_unet():
-    rotation = True
+    rotation = False
     theta_min = 0
-    theta_max = 1
+    theta_max = 360
     theta_interval = 45
 
     training_path = 'datasets' + os.sep + 'training'
@@ -130,18 +130,18 @@ def train_unet():
         # 訓練用labelデータ読み込み
         y_train = load_y_rotation(training_path + os.sep + 'label', theta_min, theta_max, theta_interval)
         # 検証用imageデータ読み込み
-        x_validation, file_names2 = load_x_rotation(validation_path + os.sep + 'image', theta_min, theta_max, theta_interval)
+        x_validation, file_names2 = load_x_rotation(validation_path + os.sep + 'validation', theta_min, theta_max, theta_interval)
         # 検証用labelデータ読み込み
-        y_validation = load_y_rotation(validation_path + os.sep + 'label', theta_min, theta_max, theta_interval)
+        y_validation = load_y_rotation(validation_path + os.sep + 'validation', theta_min, theta_max, theta_interval)
     else:
         # 訓練用imageデータ読み込み
         x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
         # 訓練用labelデータ読み込み
         y_train = load_y('datasets' + os.sep + 'training' + os.sep + 'label')
         # 検証用imageデータ読み込み
-        x_validation, file_names2 = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
+        x_validation, file_names2 = load_x('datasets' + os.sep + 'validation' + os.sep + 'image')
         # 検証用labelデータ読み込み
-        y_validation = load_y('datasets' + os.sep + 'test' + os.sep + 'label')
+        y_validation = load_y('datasets' + os.sep + 'validation' + os.sep + 'label')
 
     # 入力はグレースケール1チャンネル
     input_channel_count = 1
@@ -155,7 +155,7 @@ def train_unet():
 
     BATCH_SIZE = 8
     # 20エポック回せば十分
-    NUM_EPOCH = 500
+    NUM_EPOCH = 300
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -245,14 +245,14 @@ def predict_rotation():
 
             print(file_names[i], theta, y_dn_uint8.dtype)
 
-            out.write(y_dn_uint8)
-            break
 
+            #out.write(y_dn_uint8)
             #cv2.imwrite('./prediction/' + file_names[i] + str(theta) + '.png', y_dn)
+            #break
 
             # cv2.waitKey(0)
 
-        #dice_means.append(dice_sum/len(Y_pred))
+        dice_means.append(dice_sum/len(Y_pred))
 
     print(dice_means)
     out.release()

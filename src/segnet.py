@@ -79,16 +79,16 @@ def segnet(input_channel_count, output_channel_count, first_layer_filter_count):
 def train_segnet():
     # training/validation dataset paths
     training_path = 'datasets' + os.sep + 'training'
-    validation_path = 'datasets' + os.sep + 'test'
+    validation_path = 'datasets' + os.sep + 'validation'
 
     # 訓練用imageデータ読み込み
     x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
     # 訓練用labelデータ読み込み
     y_train = load_y('datasets' + os.sep + 'training' + os.sep + 'label')
     # 検証用imageデータ読み込み
-    x_validation, file_names2 = load_x('datasets' + os.sep + 'test' + os.sep + 'image')
+    x_validation, file_names2 = load_x('datasets' + os.sep + 'validation' + os.sep + 'image')
     # 検証用labelデータ読み込み
-    y_validation = load_y('datasets' + os.sep + 'test' + os.sep + 'label')
+    y_validation = load_y('datasets' + os.sep + 'validation' + os.sep + 'label')
 
     # 入力はグレースケール1チャンネル
     input_channel_count = 1
@@ -102,7 +102,7 @@ def train_segnet():
 
     BATCH_SIZE = 8
     # 20エポック回せば十分
-    NUM_EPOCH = 1
+    NUM_EPOCH = 300
 
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
