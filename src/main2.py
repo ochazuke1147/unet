@@ -10,8 +10,17 @@ db = AkazeDB('myname', registrant_video_path)
 
 db.filter_keypoints(3, 10)
 
-print(db.check_matches(user_video_path, 10, 1))
-print(db.check_matches(registrant_video_path, 10, 5))
+#match_numbers = (db.check_matches(user_video_path, 10, 1))
+match_numbers = (db.check_matches(registrant_video_path, 10, 10))
+
+print(match_numbers, db.keypoints_DB_number)
+#exit()
+
+print(db.check_frequency(db.keypoints_DB_number, match_numbers, 10))
+
+rate = db.check_rate(match_numbers, 0.6)
+
+print(rate)
 
 exit()
 

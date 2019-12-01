@@ -4,7 +4,7 @@ import numpy as np
 from src.func_processing import *
 
 
-# akaze特徴点を保持しておくクラス
+# akaze特徴点を保持し認証を行うクラス
 class AkazeDB:
     def __init__(self, registrant, video_path, first_image_number=0):
         self.registrant = registrant
@@ -24,8 +24,9 @@ class AkazeDB:
         self.akaze = cv2.AKAZE_create()
         self.keypoints_DB, self.descriptors_DB = self.akaze.detectAndCompute(self.image_DB_processed, None)
         self.bf_matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
+        self.keypoints_DB_number = len(self.keypoints_DB)
 
-        # lists for filtering keypoints
+        # list for filtering keypoints
         self.match_numbers = []
         for i in range(len(self.keypoints_DB)):
             self.match_numbers.append(0)
@@ -35,7 +36,7 @@ class AkazeDB:
         cv2.imshow('keypoints_DB', image)
         cv2.waitKey()
 
-
+    # 特徴点を絞り込むmethod
     def filter_keypoints(self, filter_number, skip_number):
         filter_count = 0
         filtered_keypoints_DB = []
@@ -75,10 +76,9 @@ class AkazeDB:
 
         self.keypoints_DB = filtered_keypoints_DB
         self.descriptors_DB = filtered_descriptors_DB
+        self.keypoints_DB_number = len(self.keypoints_DB)
 
-        self.show_keypoints()
-
-
+        # self.show_keypoints()
 
     @staticmethod
     def filter_matches(matches, threshold=70):
@@ -90,6 +90,7 @@ class AkazeDB:
 
         return filtered_match
 
+    # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
     def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=10):
         cap_user = cv2.VideoCapture(video_path)
         cap_user.set(cv2.CAP_PROP_POS_FRAMES, first_frame_number)
@@ -119,7 +120,27 @@ class AkazeDB:
 
         return match_numbers
 
-    def check_frequency(self, keypoints_DB_number, match_numbers):
+    # マッチ数の頻度ヒストグラムを出力するmethod
+    def check_frequency(self, keypoints_DB_number, match_numbers, check_number):
         frequency = []
-        for i in range(keypoints_DB_number):
+        for i in range(keypoints_DB_number+1):
             frequency.append(0)
+
+        for match_number in match_numbers:
+            if match_number > keypoints_DB_number:
+                print('match_numbersの値が不正です.')
+                exit(1)
+
+            frequency[match_number] += 1
+
+        return frequency
+
+    # match_numbersを受け取り,threshold以上のマッチ数ならaccept,未満ならrejectとして扱い,受容率を返すmethod
+    def check_rate(self, match_numbers, threshold_rate):
+        accept_number = 0
+        for match_number in match_numbers:
+            if match_number >= (self.keypoints_DB_number * threshold_rate):
+                accept_number += 1
+
+        accept_rate = accept_number/len(match_numbers)
+        return accept_rate

@@ -92,7 +92,7 @@ class UNet(object):
 
         self.UNet = Model(inputs=input_img, outputs=dec8)
 
-        self.UNet.summary()
+        # self.UNet.summary()
 
     def _add_encoding_layer(self, filter_count, sequence):
         new_sequence = LeakyReLU(0.2)(sequence)
