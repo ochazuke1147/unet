@@ -97,6 +97,14 @@ class AkazeDB:
 
     # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
     def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2):
+        input_channel_count = 1
+        output_channel_count = 1
+        first_layer_filter_count = 64
+        network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
+        model = network.get_model()
+        model.load_weights('unet_weights.hdf5')
+        BATCH_SIZE = 1
+
         cap_user = cv2.VideoCapture(video_path)
         cap_user.set(cv2.CAP_PROP_POS_FRAMES, first_frame_number)
         check_count = 0
@@ -109,7 +117,23 @@ class AkazeDB:
             if not ret:
                 print('image_user load error!')
             image_user_gray = cv2.cvtColor(image_user, cv2.COLOR_BGR2GRAY)
-            image_user_masked = unet_masking(image_user_gray)
+
+            size = (image_user_gray.shape[1], image_user_gray.shape[0])
+            images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
+            image = cv2.resize(image_user_gray, (IMAGE_SIZE, IMAGE_SIZE))
+            image = image[:, :, np.newaxis]
+            images[0] = normalize_x(image)
+            Y_pred = model.predict(images, BATCH_SIZE)
+            y = cv2.resize(Y_pred[0], size)
+            y_dn = denormalize_y(y)
+            y_dn = np.uint8(y_dn)
+            ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+            masked = cv2.bitwise_and(image_user_gray, mask)
+            mask_rest = cv2.bitwise_not(mask)
+            masked = cv2.bitwise_or(masked, mask_rest)
+
+
+            image_user_masked = masked
             image_user_processed = high_boost_filter(image_user_masked)
             keypoints_user, descriptors_user = self.akaze.detectAndCompute(image_user_processed, None)
 
@@ -164,7 +188,7 @@ class AkazeDB:
     def calc_EER(self, match_numbers_self, match_numbers_others):
         list_FRR = []
         list_FAR = []
-        for threshold_rate in np.linspace(0.6, 0.8, 100):
+        for threshold_rate in np.linspace(0.0, 1, 100):
             print(threshold_rate)
 
             FRR = self.calc_FRR(match_numbers_self, threshold_rate)

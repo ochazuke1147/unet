@@ -1,6 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
-.idea/workspace.xml
-.idea/tasks.xml
+.idea/
 datasets/
 prediction/
 *_weights.hdf5

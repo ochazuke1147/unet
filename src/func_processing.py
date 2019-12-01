@@ -37,19 +37,12 @@ def unet_masking(gray_image):
     BATCH_SIZE = 1
 
     Y_pred = model.predict(images, BATCH_SIZE)
-
     y = cv2.resize(Y_pred[0], size)
-
     y_dn = denormalize_y(y)
-
     y_dn = np.uint8(y_dn)
-
     ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
-
     masked = cv2.bitwise_and(gray_image, mask)
-
     mask_rest = cv2.bitwise_not(mask)
-
     masked = cv2.bitwise_or(masked, mask_rest)
 
     return masked
