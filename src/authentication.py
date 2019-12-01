@@ -31,6 +31,10 @@ class AkazeDB:
         for i in range(len(self.keypoints_DB)):
             self.match_numbers.append(0)
 
+        # definition of threshold
+        self.threshold_filter = 70
+        self.threshold_check_rate = 0.8
+
     def show_keypoints(self):
         image = cv2.drawKeypoints(self.image_DB_processed, self.keypoints_DB, None, flags=2)
         cv2.imshow('keypoints_DB', image)
@@ -91,7 +95,7 @@ class AkazeDB:
         return filtered_match
 
     # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
-    def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=10):
+    def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2):
         cap_user = cv2.VideoCapture(video_path)
         cap_user.set(cv2.CAP_PROP_POS_FRAMES, first_frame_number)
         check_count = 0
@@ -144,3 +148,36 @@ class AkazeDB:
 
         accept_rate = accept_number/len(match_numbers)
         return accept_rate
+
+    # FRRを計算するmethod
+    def calc_FRR(self, match_numbers, threshold_rate):
+        FRR = 1 - self.check_rate(match_numbers, threshold_rate)
+        return FRR
+
+    # FARを計算するmethod
+    def calc_FAR(self, match_numbers, threshold_rate):
+        FAR = self.check_rate(match_numbers, threshold_rate)
+        return FAR
+
+    # EERを計算するmethod
+    def calc_EER(self, match_numbers_self, match_numbers_others):
+        list_FRR = []
+        list_FAR = []
+        for threshold_rate in np.linspace(0, 1, 100):
+            print(threshold_rate)
+
+            FRR = self.calc_FRR(match_numbers_self, threshold_rate)
+            FAR = self.calc_FAR(match_numbers_others, threshold_rate)
+
+            list_FRR.append(FRR)
+            list_FAR.append(FAR)
+
+        print('FRR', list_FRR)
+        print('FAR', list_FAR)
+
+        diff = list(map(lambda x, y: x - y, list_FAR, list_FRR))
+
+        print(diff)
+
+
+
