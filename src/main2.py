@@ -18,8 +18,8 @@ db = AkazeDB('myname', registrant_video_path)
 
 db.filter_keypoints(3, 10)
 
-match_numbers_others = (db.check_matches(user_video_path, check_number=10, first_frame_number=10))
-match_numbers_self = (db.check_matches(registrant_video_path, check_number=10, first_frame_number=10))
+match_numbers_others = (db.check_matches(user_video_path, check_number=10, first_frame_number=10, mode='U-Net'))
+match_numbers_self = (db.check_matches(registrant_video_path, check_number=10, first_frame_number=10, mode='U-Net'))
 
 db.calc_EER(match_numbers_self, match_numbers_others)
 

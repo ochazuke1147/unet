@@ -96,13 +96,22 @@ class AkazeDB:
         return filtered_match
 
     # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
-    def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2):
+    def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2, mode='U-Net'):
         input_channel_count = 1
         output_channel_count = 1
-        first_layer_filter_count = 64
-        network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
-        model = network.get_model()
-        model.load_weights('unet_weights.hdf5')
+        if mode == 'U-Net':
+            first_layer_filter_count = 64
+            network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
+            model = network.get_model()
+            model.load_weights('unet_weights.hdf5')
+        elif mode == 'SegNet':
+            first_layer_filter_count = 32
+            model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
+            model.load_weights('segnet_weights.hdf5')
+        else:
+            print('modelが不正です.')
+            exit(1)
+
         BATCH_SIZE = 1
 
         cap_user = cv2.VideoCapture(video_path)
@@ -128,6 +137,7 @@ class AkazeDB:
             y_dn = denormalize_y(y)
             y_dn = np.uint8(y_dn)
             ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+
             masked = cv2.bitwise_and(image_user_gray, mask)
             mask_rest = cv2.bitwise_not(mask)
             masked = cv2.bitwise_or(masked, mask_rest)
