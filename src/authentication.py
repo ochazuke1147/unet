@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 from src.func_processing import *
+from src.plot import *
 
 
 # akaze特徴点を保持し認証を行うクラス
@@ -117,7 +118,7 @@ class AkazeDB:
             matches = sorted(matches, key=lambda x: x.distance)
             matches = self.filter_matches(matches)
 
-            #print('マッチ数：', len(matches))
+            print('マッチ数：', len(matches))
             match_numbers.append(len(matches))
 
             check_count += 1
@@ -163,7 +164,7 @@ class AkazeDB:
     def calc_EER(self, match_numbers_self, match_numbers_others):
         list_FRR = []
         list_FAR = []
-        for threshold_rate in np.linspace(0, 1, 100):
+        for threshold_rate in np.linspace(0.6, 0.8, 100):
             print(threshold_rate)
 
             FRR = self.calc_FRR(match_numbers_self, threshold_rate)
@@ -175,9 +176,8 @@ class AkazeDB:
         print('FRR', list_FRR)
         print('FAR', list_FAR)
 
-        diff = list(map(lambda x, y: x - y, list_FAR, list_FRR))
+        diff = list(map(lambda x, y: abs(x - y), list_FAR, list_FRR))
+
+        plot_match_frequency_compare(range(100), list_FRR, 'FRR', range(100), list_FAR, 'FAR')
 
         print(diff)
-
-
-
