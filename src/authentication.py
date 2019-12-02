@@ -28,6 +28,10 @@ class AkazeDB:
         self.keypoints_DB_number = len(self.keypoints_DB)
         print(self.descriptors_DB.shape)
 
+        self.frequency = []
+        for i in range(self.keypoints_DB_number + 1):
+            self.frequency.append(0)
+
         # list for filtering keypoints
         self.match_numbers = []
         for i in range(len(self.keypoints_DB)):
@@ -68,7 +72,6 @@ class AkazeDB:
                                      matches[:], None, flags=2)
 
             for match in matches:
-                print(match.queryIdx)
                 self.match_numbers[match.queryIdx] += 1
 
             #cv2.imshow('', result)
@@ -101,12 +104,14 @@ class AkazeDB:
         input_channel_count = 1
         output_channel_count = 1
         if mode == 'U-Net':
+            print('U-Net mode.')
             first_layer_filter_count = 64
             network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
             model = network.get_model()
             model.load_weights('unet_weights.hdf5')
         elif mode == 'SegNet':
-            first_layer_filter_count = 32
+            print('SegNet mode.')
+            first_layer_filter_count = 64
             model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
             model.load_weights('segnet_weights.hdf5')
         else:
@@ -148,7 +153,8 @@ class AkazeDB:
             image_user_processed = high_boost_filter(image_user_masked)
             keypoints_user, descriptors_user = self.akaze.detectAndCompute(image_user_processed, None)
 
-            print(self.descriptors_DB.shape, descriptors_user.shape)
+
+            print(descriptors_user.shape)
 
             matches = self.bf_matcher.match(self.descriptors_DB, descriptors_user)
 
@@ -163,19 +169,15 @@ class AkazeDB:
         return match_numbers
 
     # マッチ数の頻度ヒストグラムを出力するmethod
-    def check_frequency(self, keypoints_DB_number, match_numbers, check_number):
-        frequency = []
-        for i in range(keypoints_DB_number+1):
-            frequency.append(0)
-
+    def check_frequency(self, match_numbers):
         for match_number in match_numbers:
-            if match_number > keypoints_DB_number:
+            if match_number > self.keypoints_DB_number:
                 print('match_numbersの値が不正です.')
                 exit(1)
 
-            frequency[match_number] += 1
+            self.frequency[match_number] += 1
 
-        return frequency
+        return self.frequency
 
     # match_numbersを受け取り,threshold以上のマッチ数ならaccept,未満ならrejectとして扱い,受容率を返すmethod
     def check_rate(self, match_numbers, threshold_rate):

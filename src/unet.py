@@ -170,7 +170,7 @@ def predict():
 
     rotation = False
     # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
+    X_test, file_names = load_x('datasets' + os.sep + 'validation' + os.sep + 'image', rotation)
 
     input_channel_count = 1
     output_channel_count = 1
@@ -184,7 +184,7 @@ def predict():
 
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
-        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
+        img = cv2.imread('datasets' + os.sep + 'validation' + os.sep + 'image' + os.sep + file_names[i], 0)
 
         if rotation:
             y = cv2.resize(y, (img.shape[0], img.shape[0]))
@@ -224,7 +224,7 @@ def predict_rotation():
         rotation = True
         # test内の画像で予測
         X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation, theta)
-        y_test = load_y('datasets' + os.sep + 'test' + os.sep + 'label', rotation, theta)
+        y_test = load_y('datasets' + os.sep + 'validation' + os.sep + 'label', rotation, theta)
 
         Y_pred = model.predict(X_test, BATCH_SIZE)
 

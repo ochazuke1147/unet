@@ -58,7 +58,7 @@ def segnet_masking(gray_image):
 
     input_channel_count = 1
     output_channel_count = 1
-    first_layer_filter_count = 32
+    first_layer_filter_count = 64
     model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
     model.load_weights('segnet_weights.hdf5')
     BATCH_SIZE = 1
