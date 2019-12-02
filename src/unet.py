@@ -151,9 +151,9 @@ def train_unet():
     # U-Netの生成
     network = UNet(input_channel_count, output_channel_count, FIRST_LAYER_FILTER_COUNT)
     model = network.get_model()
-    model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-4), metrics=[dice_coefficient, 'accuracy'])
+    model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-3), metrics=[dice_coefficient, 'accuracy'])
 
-    BATCH_SIZE = 8
+    BATCH_SIZE = 10
     # 20エポック回せば十分
     NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
@@ -178,6 +178,7 @@ def predict():
     network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
     model = network.get_model()
     model.load_weights('unet_weights.hdf5')
+    model.summary()
     BATCH_SIZE = 12
     Y_pred = model.predict(X_test, BATCH_SIZE)
 

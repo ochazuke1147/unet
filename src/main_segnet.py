@@ -4,7 +4,6 @@ from src.timer import *
 
 
 network = segnet(1, 1, FIRST_LAYER_FILTER_COUNT)
-network.summary()
 timer = Timer()
 history = train_segnet()
 timer.time_elapsed()

@@ -14,7 +14,7 @@ from src.normalize import denormalize_y
 # imageは(256, 256, 1)で読み込み
 IMAGE_SIZE = 256
 # 一番初めのConvolutionフィルタ枚数は64
-FIRST_LAYER_FILTER_COUNT = 32
+FIRST_LAYER_FILTER_COUNT = 64
 
 
 # SegNet model definition
@@ -102,11 +102,11 @@ def train_segnet():
     # SegNetの定義
     model = segnet(input_channel_count, output_channel_count, FIRST_LAYER_FILTER_COUNT)
 
-    model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-4), metrics=[dice_coefficient, 'accuracy'])
+    model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-3), metrics=[dice_coefficient, 'accuracy'])
 
     BATCH_SIZE = 8
     # 20エポック回せば十分
-    NUM_EPOCH = 450
+    NUM_EPOCH = 500
 
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
@@ -128,6 +128,7 @@ def segnet_predict():
     first_layer_filter_count = FIRST_LAYER_FILTER_COUNT
     model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
     model.load_weights('segnet_weights.hdf5')
+    model.summary()
     BATCH_SIZE = 12
     Y_pred = model.predict(X_test, BATCH_SIZE)
 

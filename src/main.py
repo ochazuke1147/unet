@@ -6,9 +6,10 @@ from src.timer import *
 
 #os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 timer = Timer()
-#history = train_unet()
-#timer.time_elapsed()
-#plot_loss_accuracy(history)
+history = train_unet()
+timer.time_elapsed()
+plot_loss_accuracy(history)
+timer.restart()
 predict()
 timer.time_elapsed()
 #thetas2, dice_means2 = predict_rotation()

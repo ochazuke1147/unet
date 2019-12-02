@@ -26,6 +26,7 @@ class AkazeDB:
         self.keypoints_DB, self.descriptors_DB = self.akaze.detectAndCompute(self.image_DB_processed, None)
         self.bf_matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
         self.keypoints_DB_number = len(self.keypoints_DB)
+        print(self.descriptors_DB.shape)
 
         # list for filtering keypoints
         self.match_numbers = []
@@ -147,6 +148,8 @@ class AkazeDB:
             image_user_processed = high_boost_filter(image_user_masked)
             keypoints_user, descriptors_user = self.akaze.detectAndCompute(image_user_processed, None)
 
+            print(self.descriptors_DB.shape, descriptors_user.shape)
+
             matches = self.bf_matcher.match(self.descriptors_DB, descriptors_user)
 
             matches = sorted(matches, key=lambda x: x.distance)
@@ -198,7 +201,7 @@ class AkazeDB:
     def calc_EER(self, match_numbers_self, match_numbers_others):
         list_FRR = []
         list_FAR = []
-        for threshold_rate in np.linspace(0.0, 1, 100):
+        for threshold_rate in np.linspace(0.5, 1, 100):
             print(threshold_rate)
 
             FRR = self.calc_FRR(match_numbers_self, threshold_rate)
@@ -212,6 +215,6 @@ class AkazeDB:
 
         diff = list(map(lambda x, y: abs(x - y), list_FAR, list_FRR))
 
-        plot_match_frequency_compare(range(100), list_FRR, 'FRR', range(100), list_FAR, 'FAR')
+        plot_dice_coefficient(list_FAR, list_FRR)
 
         print(diff)
