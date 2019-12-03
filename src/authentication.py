@@ -18,7 +18,8 @@ class AkazeDB:
             exit(1)
         # preprocess image_DB
         self.image_DB_gray = cv2.cvtColor(self.image_DB, cv2.COLOR_BGR2GRAY)
-        self.image_DB_masked = unet_masking(self.image_DB_gray)
+        #self.image_DB_masked = unet_masking(self.image_DB_gray)
+        self.image_DB_masked = opening_masking(self.image_DB_gray)
         self.image_DB_processed = high_boost_filter(self.image_DB_masked)
 
         # detect and compute akaze features
@@ -27,10 +28,6 @@ class AkazeDB:
         self.bf_matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
         self.keypoints_DB_number = len(self.keypoints_DB)
         print(self.descriptors_DB.shape)
-
-        self.frequency = []
-        for i in range(self.keypoints_DB_number + 1):
-            self.frequency.append(0)
 
         # list for filtering keypoints
         self.match_numbers = []
@@ -59,7 +56,8 @@ class AkazeDB:
             if not ret:
                 print('image_filter load error!')
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
-            image_filter_masked = unet_masking(image_filter_gray)
+            #image_filter_masked = unet_masking(image_filter_gray)
+            image_filter_masked = opening_masking(image_filter_gray)
             image_filter_processed = high_boost_filter(image_filter_masked)
             keypoints_filter, descriptors_filter = self.akaze.detectAndCompute(image_filter_processed, None)
 
@@ -133,20 +131,21 @@ class AkazeDB:
                 print('image_user load error!')
             image_user_gray = cv2.cvtColor(image_user, cv2.COLOR_BGR2GRAY)
 
-            size = (image_user_gray.shape[1], image_user_gray.shape[0])
-            images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
-            image = cv2.resize(image_user_gray, (IMAGE_SIZE, IMAGE_SIZE))
-            image = image[:, :, np.newaxis]
-            images[0] = normalize_x(image)
-            Y_pred = model.predict(images, BATCH_SIZE)
-            y = cv2.resize(Y_pred[0], size)
-            y_dn = denormalize_y(y)
-            y_dn = np.uint8(y_dn)
-            ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+            #size = (image_user_gray.shape[1], image_user_gray.shape[0])
+            #images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
+            #image = cv2.resize(image_user_gray, (IMAGE_SIZE, IMAGE_SIZE))
+            #image = image[:, :, np.newaxis]
+            #images[0] = normalize_x(image)
+            #Y_pred = model.predict(images, BATCH_SIZE)
+            #y = cv2.resize(Y_pred[0], size)
+            #y_dn = denormalize_y(y)
+            #y_dn = np.uint8(y_dn)
+            #ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
 
-            masked = cv2.bitwise_and(image_user_gray, mask)
-            mask_rest = cv2.bitwise_not(mask)
-            masked = cv2.bitwise_or(masked, mask_rest)
+            #masked = cv2.bitwise_and(image_user_gray, mask)
+            #mask_rest = cv2.bitwise_not(mask)
+            #masked = cv2.bitwise_or(masked, mask_rest)
+            masked = opening_masking(image_user_gray)
 
 
             image_user_masked = masked
@@ -170,6 +169,10 @@ class AkazeDB:
 
     # マッチ数の頻度ヒストグラムを出力するmethod
     def check_frequency(self, match_numbers):
+        self.frequency = []
+        for i in range(self.keypoints_DB_number + 1):
+            self.frequency.append(0)
+
         for match_number in match_numbers:
             if match_number > self.keypoints_DB_number:
                 print('match_numbersの値が不正です.')

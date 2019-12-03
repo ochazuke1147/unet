@@ -88,3 +88,4 @@ def show_hist(gray_image):
     plt.show()
     plt.close()
     print(hist)
+
