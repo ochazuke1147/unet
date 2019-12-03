@@ -63,6 +63,7 @@ def plot_match_frequency_compare(match_num1, frequency1, label1, match_num2, fre
     fig = plt.figure()
     plt.plot(match_num1, frequency1, label=label1)
     plt.plot(match_num2, frequency2, label=label2)
+    plt.ylim(0, 30)
     plt.xlabel('Number of matched keypoints')
     plt.ylabel('Frequency')
     plt.legend()

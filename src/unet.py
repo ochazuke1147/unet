@@ -153,7 +153,7 @@ def train_unet():
     model = network.get_model()
     model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-3), metrics=[dice_coefficient, 'accuracy'])
 
-    BATCH_SIZE = 10
+    BATCH_SIZE = 5
     # 20エポック回せば十分
     NUM_EPOCH = 500
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
@@ -170,7 +170,7 @@ def predict():
 
     rotation = False
     # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'validation' + os.sep + 'image', rotation)
+    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
 
     input_channel_count = 1
     output_channel_count = 1
@@ -184,7 +184,7 @@ def predict():
 
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
-        img = cv2.imread('datasets' + os.sep + 'validation' + os.sep + 'image' + os.sep + file_names[i], 0)
+        img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
 
         if rotation:
             y = cv2.resize(y, (img.shape[0], img.shape[0]))
@@ -192,10 +192,12 @@ def predict():
             y = cv2.resize(y, (img.shape[1], img.shape[0]))
 
         y_dn = denormalize_y(y)
-        cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
-        # img_pre = cv2.imread('prediction' + str(i) + '.png')
-        # img_compare = cv2.hconcat([img_pre, img_gt])
-        # cv2.imwrite('compare' + str(i) + '.png', img_compare)
+        #cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
+
+        y_dn = np.uint8(y_dn)
+        ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+
+        cv2.imwrite('prediction(binary)' + os.sep + file_names[i], mask)
 
     return 0
 

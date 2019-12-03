@@ -10,6 +10,7 @@ import os
 from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
 from src.normalize import denormalize_y
+from src.func_processing import *
 
 # imageは(256, 256, 1)で読み込み
 IMAGE_SIZE = 256
@@ -135,6 +136,7 @@ def segnet_predict():
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
         img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
+
 
         if rotation:
             y = cv2.resize(y, (img.shape[0], img.shape[0]))
