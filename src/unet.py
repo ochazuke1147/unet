@@ -1,10 +1,14 @@
 # U-Netを操作するクラス,関数群
+import os
+if os.name == 'posix':
+    print('on macOS')
+    import plaidml.keras
+    plaidml.keras.install_backend()
 from keras.models import Model
 from keras.layers import Input, LeakyReLU, BatchNormalization, Activation, Dropout
 from keras.layers.convolutional import Conv2D, ZeroPadding2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.optimizers import Adam
-import os
 from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
 from src.normalize import denormalize_y

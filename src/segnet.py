@@ -1,3 +1,8 @@
+import os
+if os.name == 'posix':
+    print('on macOS')
+    import plaidml.keras
+    plaidml.keras.install_backend()
 from keras.layers import Input, Dropout
 from keras.layers.core import Activation, Flatten, Reshape
 from keras.layers.convolutional import Convolution2D, Conv2D, MaxPooling2D, UpSampling2D
@@ -5,7 +10,6 @@ from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.utils import np_utils
-import os
 
 from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
