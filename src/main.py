@@ -3,7 +3,6 @@ from src.unet import *
 from src.plot import *
 from src.timer import *
 
-
 #os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 timer = Timer()
 #history = train_unet()
