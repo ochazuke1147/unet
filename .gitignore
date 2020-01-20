@@ -5,3 +5,4 @@ prediction/
 *_weights.hdf5
 datasets(original)/
 datasets(one finger)/
+thesis/

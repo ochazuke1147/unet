@@ -76,19 +76,33 @@ def segnet_masking(gray_image):
 
 
 def opening_masking(gray_image):
-    kernel = np.ones((9, 9), np.uint8)
-    # tmp_image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7)), iterations=5)
+    kernel = np.ones((5, 5), np.uint8)
+    #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7)), iterations=5)
 
     tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_CLOSE, kernel, iterations=10)
 
     if len(tmp_image.shape) == 3:
-        tmp_image = cv2.cvtColor(tmp_image, cv2.COLOR_RGB2GRAY)
+        tmp_image = cv2.cvtColor(tmp_image, cv2.COLOR_BGR2GRAY)
         print(0)
+
+    cv2.equalizeHist(tmp_image, tmp_image)
 
     ret, mask = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     masked = cv2.bitwise_and(gray_image, mask)
-    mask_rest = cv2.bitwise_not(mask)
-    masked = cv2.bitwise_or(masked, mask_rest)
+    #mask_rest = cv2.bitwise_not(mask)
+    #masked = cv2.bitwise_or(masked, mask_rest)
 
     return masked
+
+
+
+
+
+
+
+
+
+
+
+
