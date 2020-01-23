@@ -4,7 +4,7 @@ from src.unet import *
 from src.segnet import *
 
 
-def high_boost_filter(gray_image):
+def high_boost_filter(gray_image, times):
     kernel_size = 15
 
     kernel = np.full((kernel_size, kernel_size), -1, dtype=np.float)
@@ -16,11 +16,12 @@ def high_boost_filter(gray_image):
     image = np.uint8(gray_image)
 
     # TODO: 指領域に対してのみヒストグラム平坦化処理を行うように変更する
-    cv2.equalizeHist(image, image)
-    boosted_image = cv2.filter2D(image, -1, kernel)
-    median_image = cv2.medianBlur(boosted_image, 5)
+    image = cv2.equalizeHist(image)
+    image = image*3
+    image = cv2.filter2D(image, -1, kernel)
+    image = cv2.medianBlur(image, 5)
 
-    return median_image
+    return image
 
 def unet_masking(gray_image):
     size = (gray_image.shape[1], gray_image.shape[0])

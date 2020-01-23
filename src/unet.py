@@ -16,7 +16,7 @@ import numpy as np
 
 
 # imageは(256, 256, 1)で読み込み
-IMAGE_SIZE = 256
+IMAGE_SIZE = 128
 # 一番初めのConvolutionフィルタ枚数は32
 FIRST_LAYER_FILTER_COUNT = 64
 

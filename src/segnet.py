@@ -17,7 +17,7 @@ from src.normalize import denormalize_y
 from src.func_processing import *
 
 # imageは(256, 256, 1)で読み込み
-IMAGE_SIZE = 256
+IMAGE_SIZE = 128
 # 一番初めのConvolutionフィルタ枚数は64
 FIRST_LAYER_FILTER_COUNT = 64
 
@@ -140,7 +140,7 @@ def segnet_predict():
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
         img = cv2.imread('datasets' + os.sep + 'test' + os.sep + 'image' + os.sep + file_names[i], 0)
-
+        #cv2.equalizeHist(img ,img)
 
         if rotation:
             y = cv2.resize(y, (img.shape[0], img.shape[0]))
@@ -148,6 +148,14 @@ def segnet_predict():
             y = cv2.resize(y, (img.shape[1], img.shape[0]))
 
         y_dn = denormalize_y(y)
-        cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
+        y_dn = np.uint8(y_dn)
+        #ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+        ret, mask = cv2.threshold(y_dn, 127, 255, cv2.THRESH_BINARY)
+        #hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
+        masked = cv2.bitwise_and(img, mask)
+        mask_rest = cv2.bitwise_not(mask)
+        masked = cv2.bitwise_or(masked, mask_rest)
+        image_user_processed = high_boost_filter(masked, 3)
+        cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
 
     return 0
