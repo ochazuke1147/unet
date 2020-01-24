@@ -23,6 +23,7 @@ class AkazeDB:
         self.image_DB_processed = high_boost_filter(self.image_DB_masked)
 
         # detect and compute akaze features
+
         self.akaze = cv2.AKAZE_create()
         self.keypoints_DB, self.descriptors_DB = self.akaze.detectAndCompute(self.image_DB_processed, None)
         self.bf_matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
@@ -56,8 +57,8 @@ class AkazeDB:
             if not ret:
                 print('image_filter load error!')
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
-            #image_filter_masked = unet_masking(image_filter_gray)
-            image_filter_masked = opening_masking(image_filter_gray)
+            image_filter_masked = segnet_masking(image_filter_gray)
+            #image_filter_masked = opening_masking(image_filter_gray)
             image_filter_processed = high_boost_filter(image_filter_masked)
             keypoints_filter, descriptors_filter = self.akaze.detectAndCompute(image_filter_processed, None)
 
@@ -66,8 +67,7 @@ class AkazeDB:
             matches = sorted(matches, key=lambda x: x.distance)
             matches = self.filter_matches(matches)
 
-            result = cv2.drawMatches(self.image_DB_masked, self.keypoints_DB, image_filter_masked, keypoints_filter,
-                                     matches[:], None, flags=2)
+            #result = cv2.drawMatches(self.image_DB_masked, self.keypoints_DB, image_filter_masked, keypoints_filter, matches[:], None, flags=2)
 
             for match in matches:
                 self.match_numbers[match.queryIdx] += 1
@@ -85,7 +85,7 @@ class AkazeDB:
         self.descriptors_DB = filtered_descriptors_DB
         self.keypoints_DB_number = len(self.keypoints_DB)
 
-        # self.show_keypoints()
+        self.show_keypoints()
 
     @staticmethod
     def filter_matches(matches, threshold=70):

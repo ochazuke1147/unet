@@ -17,39 +17,25 @@ from src.plot import *
 video_paths = ['./datasets/movie/hayashi_n4.avi', './datasets/movie/kikuchi_n2.avi',
                './datasets/movie/kurose_n1.avi', './datasets/movie/okazawa8.avi']
 
+
 total_frequency = []
 for i in range(1000):
     total_frequency.append(0)
 
-for video in video_paths:
+registrant_video_path = video_paths[0]
+db = AkazeDB(video_paths[0], registrant_video_path)
+db.filter_keypoints(3, 10)
+print(db.keypoints_DB_number)
+
+for video in video_paths[1:]:
     user_video_path = video
-    registrant_video_path = video
-    db = AkazeDB(video_paths[0], registrant_video_path)
-    db.filter_keypoints(3, 10)
-    print(db.keypoints_DB_number)
-    match_numbers_self = (db.check_matches(registrant_video_path, check_number=150, first_frame_number=0, skip_number=1, mode='SegNet'))
+
+    match_numbers_others = (db.check_matches(user_video_path, check_number=50, first_frame_number=0, skip_number=1, mode='SegNet'))
     print(db.registrant)
-    tmp_frequency = db.check_frequency(match_numbers_self)
+    tmp_frequency = db.check_frequency(match_numbers_others)
     for j, f in enumerate(tmp_frequency):
         total_frequency[j] += f
 
 
 print(total_frequency)
-
 exit()
-registrant_video_path = video_paths[2]
-user_video_path = video_paths[0]
-db = AkazeDB('myname', registrant_video_path)
-
-db.filter_keypoints(3, 10)
-
-# match_numbers_others = (db.check_matches(user_video_path, check_number=10, first_frame_number=10, mode='U-Net'))
-match_numbers_self = (db.check_matches(registrant_video_path, check_number=150, first_frame_number=0, mode='U-Net'))
-
-print(db.registrant)
-print(db.check_frequency(db.keypoints_DB_number, match_numbers_self))
-
-exit()
-
-
-cv2.destroyAllWindows()

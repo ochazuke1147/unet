@@ -4,7 +4,7 @@ from src.unet import *
 from src.segnet import *
 
 
-def high_boost_filter(gray_image, times):
+def high_boost_filter(gray_image):
     kernel_size = 15
 
     kernel = np.full((kernel_size, kernel_size), -1, dtype=np.float)
