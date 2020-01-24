@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
-from src.unet import *
-from src.segnet import *
+from src.normalize import *
 
+IMAGE_SIZE = 128
 
 def high_boost_filter(gray_image):
     kernel_size = 15
@@ -24,11 +24,13 @@ def high_boost_filter(gray_image):
     return image
 
 def unet_masking(gray_image):
+    from src.unet import UNet
     size = (gray_image.shape[1], gray_image.shape[0])
     images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
     image = cv2.resize(gray_image, (IMAGE_SIZE, IMAGE_SIZE))
     image = image[:, :, np.newaxis]
-    images[0] = normalize_x(image)
+    #images[0] = normalize_x(image)
+    images[0] = image
 
     input_channel_count = 1
     output_channel_count = 1
@@ -51,11 +53,13 @@ def unet_masking(gray_image):
 
 
 def segnet_masking(gray_image):
+    from src.segnet import segnet
     size = (gray_image.shape[1], gray_image.shape[0])
     images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
     image = cv2.resize(gray_image, (IMAGE_SIZE, IMAGE_SIZE))
     image = image[:, :, np.newaxis]
-    images[0] = normalize_x(image)
+    #images[0] = normalize_x(image)
+    images[0] = image
 
     input_channel_count = 1
     output_channel_count = 1
@@ -68,6 +72,8 @@ def segnet_masking(gray_image):
     y = cv2.resize(Y_pred[0], size)
     y_dn = denormalize_y(y)
     y_dn = np.uint8(y_dn)
+    cv2.imshow('', y_dn)
+    cv2.waitKey()
     ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
     masked = cv2.bitwise_and(gray_image, mask)
     mask_rest = cv2.bitwise_not(mask)

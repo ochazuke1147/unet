@@ -18,8 +18,8 @@ class AkazeDB:
             exit(1)
         # preprocess image_DB
         self.image_DB_gray = cv2.cvtColor(self.image_DB, cv2.COLOR_BGR2GRAY)
-        #self.image_DB_masked = unet_masking(self.image_DB_gray)
-        self.image_DB_masked = opening_masking(self.image_DB_gray)
+        self.image_DB_masked = unet_masking(self.image_DB_gray)
+        #self.image_DB_masked = opening_masking(self.image_DB_gray)
         self.image_DB_processed = high_boost_filter(self.image_DB_masked)
 
         # detect and compute akaze features
@@ -99,6 +99,9 @@ class AkazeDB:
 
     # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
     def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2, mode='U-Net'):
+        from src.unet import UNet
+        from src.segnet import segnet
+
         input_channel_count = 1
         output_channel_count = 1
         if mode == 'U-Net':

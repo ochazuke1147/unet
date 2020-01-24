@@ -111,7 +111,7 @@ def train_segnet():
 
     BATCH_SIZE = 8
     # 20エポック回せば十分
-    NUM_EPOCH = 500
+    NUM_EPOCH = 300
 
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
@@ -155,7 +155,7 @@ def segnet_predict():
         masked = cv2.bitwise_and(img, mask)
         mask_rest = cv2.bitwise_not(mask)
         masked = cv2.bitwise_or(masked, mask_rest)
-        image_user_processed = high_boost_filter(masked, 3)
+        image_user_processed = high_boost_filter(masked)
         cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
 
     return 0

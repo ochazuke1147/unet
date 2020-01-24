@@ -18,11 +18,11 @@ def plot_loss_accuracy(history):
     axL.legend(loc='upper right')
 
     # Plot the accuracy in the history
-    #axR.plot(history.history['dice_coefficient'], label="dice for training")
+    axR.plot(history.history['dice_coefficient'], label="dice for training")
     #axR.plot(history.history['val_dice_coefficient'], label="dice for validation")
-    dif = map(lambda x1, x2: x1 - x2, history.history['val_loss'], history.history['loss'])
-    axR.plot(list(dif), label="loss difference", color='black')
-    axR.set_title('loss difference (training - validation)')
+    #dif = map(lambda x1, x2: x1 - x2, history.history['val_loss'], history.history['loss'])
+    #axR.plot(list(dif), label="loss difference", color='black')
+    #axR.set_title('Accuracy')
     axR.set_xlabel('epoch')
     axR.set_ylabel('accuracy')
     axR.legend(loc='lower right')
