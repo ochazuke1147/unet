@@ -40,8 +40,9 @@ class AkazeDB:
         self.threshold_check_rate = 0.8
 
     def show_keypoints(self):
-        image = cv2.drawKeypoints(self.image_DB_processed, self.keypoints_DB, None, flags=2)
+        image = cv2.drawKeypoints(self.image_DB_processed, self.keypoints_DB, None, color=(0, 0, 255), flags=2)
         cv2.imshow('keypoints_DB', image)
+        cv2.imwrite('thesis/DB_keypoints.png', image)
         cv2.waitKey()
 
     # 特徴点を絞り込むmethod
@@ -56,6 +57,7 @@ class AkazeDB:
             ret, image_filter = self.cap.read()
             if not ret:
                 print('image_filter load error!')
+            cv2.imwrite('thesis/'+str(filter_count)+'.png', image_filter)
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
             image_filter_masked = segnet_masking(image_filter_gray)
             #image_filter_masked = opening_masking(image_filter_gray)
@@ -85,10 +87,10 @@ class AkazeDB:
         self.descriptors_DB = filtered_descriptors_DB
         self.keypoints_DB_number = len(self.keypoints_DB)
 
-        self.show_keypoints()
+        #self.show_keypoints()
 
     @staticmethod
-    def filter_matches(matches, threshold=70):
+    def filter_matches(matches, threshold=90):
         filtered_match = []
         for match in matches:
             if match.distance < threshold:
@@ -148,22 +150,21 @@ class AkazeDB:
             #masked = cv2.bitwise_and(image_user_gray, mask)
             #mask_rest = cv2.bitwise_not(mask)
             #masked = cv2.bitwise_or(masked, mask_rest)
-            masked = opening_masking(image_user_gray)
-
+            masked = segnet_masking(image_user_gray)
 
             image_user_masked = masked
             image_user_processed = high_boost_filter(image_user_masked)
             keypoints_user, descriptors_user = self.akaze.detectAndCompute(image_user_processed, None)
 
 
-            print(descriptors_user.shape)
+            #print(descriptors_user.shape)
 
             matches = self.bf_matcher.match(self.descriptors_DB, descriptors_user)
 
             matches = sorted(matches, key=lambda x: x.distance)
             matches = self.filter_matches(matches)
 
-            print('マッチ数：', len(matches))
+            #print('マッチ数：', len(matches))
             match_numbers.append(len(matches))
 
             check_count += 1

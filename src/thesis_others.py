@@ -27,7 +27,7 @@ db = AkazeDB(video_paths[0], registrant_video_path)
 db.filter_keypoints(3, 10)
 print(db.keypoints_DB_number)
 
-for video in video_paths[1:]:
+for video in video_paths[:]:
     user_video_path = video
 
     match_numbers_others = (db.check_matches(user_video_path, check_number=50, first_frame_number=0, skip_number=1, mode='SegNet'))
