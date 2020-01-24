@@ -10,6 +10,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.utils import np_utils
+import keras.backend as K
 
 from src.loader import *
 from src.metrics import dice_coefficient, dice_coefficient_loss
@@ -125,8 +126,17 @@ def segnet_predict():
     import cv2
 
     rotation = False
-    # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
+    segmentation_test = True
+
+    dice_sum_previous = 0
+    dice_sum_proposed = 0
+
+    if segmentation_test:
+        # 指領域抽出実験用
+        X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
+    else:
+        # 普通のpredict
+        X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
 
     input_channel_count = 1
     output_channel_count = 1
@@ -152,10 +162,29 @@ def segnet_predict():
         #ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
         ret, mask = cv2.threshold(y_dn, 127, 255, cv2.THRESH_BINARY)
         #hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
+        mask_binary = normalize_y(mask)
+
         masked = cv2.bitwise_and(img, mask)
         mask_rest = cv2.bitwise_not(mask)
         masked = cv2.bitwise_or(masked, mask_rest)
         image_user_processed = high_boost_filter(masked)
         cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
+
+        if segmentation_test:
+            mask_previous = opening_masking(img)
+            mask_previous_binary = normalize_y(mask_previous)
+            label = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
+            label_binary = normalize_y(label)
+
+            dice_previous = K.get_value(dice_coefficient(mask_previous_binary, label_binary))
+            dice_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
+
+            print('previous:', dice_previous)
+            dice_sum_previous += dice_previous
+            print('proposed:', dice_proposed)
+            dice_sum_proposed += dice_proposed
+
+    print('dice_sum_previous:', dice_sum_previous)
+    print('dice_sum_proposed:', dice_sum_proposed)
 
     return 0

@@ -7,8 +7,10 @@ def dice_coefficient(y_true, y_pred):
     y_true = K.flatten(y_true)
     y_pred = K.flatten(y_pred)
     intersection = K.sum(y_true * y_pred)
+    #print((K.get_value(y_true)))
 
     dice = 2 * intersection / (K.sum(y_true) + K.sum(y_pred))
+    #print(K.get_value(dice))
     return dice
 # dice係数の分母に+1してあったが消してみた
 

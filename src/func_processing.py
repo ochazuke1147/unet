@@ -11,7 +11,7 @@ def high_boost_filter(gray_image):
 
     kernel[7, 7] = 225
 
-    print(gray_image.shape)
+    #print(gray_image.shape)
 
     image = np.uint8(gray_image)
 
@@ -83,10 +83,14 @@ def segnet_masking(gray_image):
 
 
 def opening_masking(gray_image):
-    kernel = np.ones((5, 5), np.uint8)
-    #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7)), iterations=5)
+    kernel = np.ones((15, 15), np.uint8)
+    tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,5)), iterations=20)
 
-    tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_CLOSE, kernel, iterations=10)
+    #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, kernel, iterations=10)
+
+    #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_ERODE, kernel, iterations=5)
+
+    #tmp_image = cv2.morphologyEx(tmp_image, cv2.MORPH_ERODE, kernel, iterations=5)
 
     if len(tmp_image.shape) == 3:
         tmp_image = cv2.cvtColor(tmp_image, cv2.COLOR_BGR2GRAY)
@@ -97,10 +101,13 @@ def opening_masking(gray_image):
     ret, mask = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     masked = cv2.bitwise_and(gray_image, mask)
-    #mask_rest = cv2.bitwise_not(mask)
-    #masked = cv2.bitwise_or(masked, mask_rest)
+    mask_rest = cv2.bitwise_not(mask)
+    masked = cv2.bitwise_or(masked, mask_rest)
 
-    return masked
+    cv2.imshow('', masked)
+    cv2.waitKey()
+
+    return mask
 
 
 

@@ -14,6 +14,8 @@ def load_file(folder_path):
     return file_list
 
 
+
+
 # 受け取ったパス下の静脈画像をグレースケールで読み込み,ファイル名とセットで返す関数
 def load_x(folder_path, rotate=False, theta=0):
     import os

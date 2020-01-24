@@ -28,7 +28,7 @@ class AkazeDB:
         self.keypoints_DB, self.descriptors_DB = self.akaze.detectAndCompute(self.image_DB_processed, None)
         self.bf_matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
         self.keypoints_DB_number = len(self.keypoints_DB)
-        print(self.descriptors_DB.shape)
+        #print(self.descriptors_DB.shape)
 
         # list for filtering keypoints
         self.match_numbers = []
@@ -53,7 +53,7 @@ class AkazeDB:
         while filter_count < filter_number:
             self.image_number += skip_number
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.image_number)
-            print('今：', self.image_number)
+            #print('今：', self.image_number)
             ret, image_filter = self.cap.read()
             if not ret:
                 print('image_filter load error!')
