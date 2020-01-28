@@ -126,7 +126,7 @@ def segnet_predict():
     import cv2
 
     rotation = False
-    segmentation_test = False
+    segmentation_test = True
 
     dice_sum_previous = 0
     dice_sum_proposed = 0
@@ -144,7 +144,7 @@ def segnet_predict():
     model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
     model.load_weights('segnet_weights.hdf5')
     model.summary()
-    BATCH_SIZE = 12
+    BATCH_SIZE = 8
     Y_pred = model.predict(X_test, BATCH_SIZE)
 
     for i, y in enumerate(Y_pred):
@@ -164,15 +164,17 @@ def segnet_predict():
         #hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
         mask_binary = normalize_y(mask)
 
-        masked = cv2.bitwise_and(img, mask)
-        mask_rest = cv2.bitwise_not(mask)
-        masked = cv2.bitwise_or(masked, mask_rest)
-        image_user_processed = high_boost_filter(masked)
-        cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
+        #masked = cv2.bitwise_and(img, mask)
+        #mask_rest = cv2.bitwise_not(mask)
+        #masked = cv2.bitwise_or(masked, mask_rest)
+        #image_user_processed = high_boost_filter(masked)
+        #cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
 
         if segmentation_test:
+            img = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'image' + os.sep + file_names[i], 0)
             mask_previous = opening_masking(img)
             mask_previous_binary = normalize_y(mask_previous)
+            print(mask_previous_binary.shape)
             label = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
             label_binary = normalize_y(label)
 
@@ -197,11 +199,16 @@ def cross_validation_segnet():
     from src.plot import plot_loss_accuracy, plot_dice_coefficient_cv
     from src.timer import Timer
 
+    segmentation_test = True
+    rotation = False
+    dices_previous = []
+    dices_proposed = []
+
     # training_validation dataset path
     training_validation_path = 'datasets' + os.sep + 'training_validation'
 
     # 学習・検証用データセットのロード
-    x, file_namaes = load_x(training_validation_path + os.sep + 'image')
+    x, file_names = load_x(training_validation_path + os.sep + 'image')
     y = load_y(training_validation_path + os.sep + 'label')
     # testデータの分割だがこれは今回あらかじめ分けておくので無視する
     #x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=7)
@@ -212,7 +219,7 @@ def cross_validation_segnet():
     output_channel_count = 1
     # ハイパーパラメータ
     BATCH_SIZE = 8
-    NUM_EPOCH = 300
+    NUM_EPOCH = 3
 
     # dice係数の最終値を記憶するlist
     final_dices = []
@@ -249,12 +256,48 @@ def cross_validation_segnet():
         dice_lists.append(history.history['dice_coefficient'])
         plot_loss_accuracy(history)
 
+        if segmentation_test:
+            # 指領域抽出実験用
+            X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
+
+            Y_pred = model.predict(X_test, BATCH_SIZE)
+
+            for i, y in enumerate(Y_pred):
+                # testDataフォルダ配下にleft_imagesフォルダを置いている
+                img = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'image' + os.sep + file_names[i], 0)
+
+                y_dn = denormalize_y(y)
+                y_dn = np.uint8(y_dn)
+                # ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+                ret, mask = cv2.threshold(y_dn, 127, 255, cv2.THRESH_BINARY)
+                # hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
+                mask_binary = normalize_y(mask)
+
+                mask_previous = opening_masking(img)
+                mask_previous_binary = normalize_y(mask_previous)
+                label = cv2.imread(
+                    'datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
+                label_binary = normalize_y(label)
+
+                dice_previous = K.get_value(dice_coefficient(mask_previous_binary, label_binary))
+                dice_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
+
+                print('previous:', dice_previous)
+                dices_previous.append(dices_previous)
+                print('proposed:', dice_proposed)
+                dices_proposed.append(dices_proposed)
+
     print(final_dices)
     print('平均訓練精度', np.mean(final_dices))
     print(final_val_dices)
     print('平均検証精度', np.mean(final_val_dices))
     print(training_times)
     print('平均学習時間', np.mean(training_times))
+    print(dices_previous)
+    print('従来手法精度', np.mean(dices_previous))
+    print(dices_proposed)
+    print('提案手法時間', np.mean(dices_proposed))
+
     plot_dice_coefficient_cv(dice_lists, label_names)
 
     return 0

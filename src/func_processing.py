@@ -104,10 +104,10 @@ def opening_masking(gray_image):
     mask_rest = cv2.bitwise_not(mask)
     masked = cv2.bitwise_or(masked, mask_rest)
 
-    #cv2.imshow('', masked)
-    #cv2.waitKey()
+    cv2.imshow('', mask)
+    cv2.waitKey()
 
-    return masked
+    return mask
 
 
 
