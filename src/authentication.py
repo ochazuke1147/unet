@@ -59,8 +59,8 @@ class AkazeDB:
                 print('image_filter load error!')
             cv2.imwrite('thesis/'+str(filter_count)+'.png', image_filter)
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
-            image_filter_masked = segnet_masking(image_filter_gray)
-            #image_filter_masked = opening_masking(image_filter_gray)
+            #image_filter_masked = segnet_masking(image_filter_gray)
+            image_filter_masked = opening_masking(image_filter_gray)
             image_filter_processed = high_boost_filter(image_filter_masked)
             keypoints_filter, descriptors_filter = self.akaze.detectAndCompute(image_filter_processed, None)
 
@@ -119,7 +119,7 @@ class AkazeDB:
             model.load_weights('segnet_weights.hdf5')
         else:
             print('modelが不正です.')
-            exit(1)
+            #exit(1)
 
         BATCH_SIZE = 1
 
@@ -136,21 +136,8 @@ class AkazeDB:
                 print('image_user load error!')
             image_user_gray = cv2.cvtColor(image_user, cv2.COLOR_BGR2GRAY)
 
-            #size = (image_user_gray.shape[1], image_user_gray.shape[0])
-            #images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
-            #image = cv2.resize(image_user_gray, (IMAGE_SIZE, IMAGE_SIZE))
-            #image = image[:, :, np.newaxis]
-            #images[0] = normalize_x(image)
-            #Y_pred = model.predict(images, BATCH_SIZE)
-            #y = cv2.resize(Y_pred[0], size)
-            #y_dn = denormalize_y(y)
-            #y_dn = np.uint8(y_dn)
-            #ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
-
-            #masked = cv2.bitwise_and(image_user_gray, mask)
-            #mask_rest = cv2.bitwise_not(mask)
-            #masked = cv2.bitwise_or(masked, mask_rest)
-            masked = segnet_masking(image_user_gray)
+            #masked = segnet_masking(image_user_gray)
+            masked = opening_masking(image_user_gray)
 
             image_user_masked = masked
             image_user_processed = high_boost_filter(image_user_masked)

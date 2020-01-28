@@ -90,3 +90,16 @@ def show_hist(gray_image):
     plt.close()
     print(hist)
 
+
+# FARを比較プロットする関数
+def plot_FAR_compare(threshold1, FAR1, label1, threshold2, FAR2, label2):
+    fig = plt.figure()
+    plt.plot(threshold1, FAR1, label=label1)
+    plt.plot(threshold2, FAR2, label=label2)
+    plt.ylim(0, 1.0)
+    plt.xlabel('threshold')
+    plt.ylabel('FAR')
+    plt.legend()
+    plt.show()
+    fig.savefig('./FAR_compare.png')
+    plt.close()

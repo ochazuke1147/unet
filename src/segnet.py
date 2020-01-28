@@ -188,3 +188,52 @@ def segnet_predict():
     print('dice_sum_proposed:', dice_sum_proposed)
 
     return 0
+
+
+# 4分割交差検証を行う関数
+def cross_validation_segnet():
+    from sklearn.model_selection import KFold
+    from sklearn.model_selection import train_test_split
+
+    # training_validation dataset path
+    training_validation_path = 'datasets' + os.sep + 'training_validation'
+
+    # 学習・検証用データセットのロード
+    x, file_namaes = load_x(training_validation_path + os.sep + 'image')
+    y = load_y(training_validation_path + os.sep + 'label')
+    # testデータの分割だがこれは今回あらかじめ分けておくので無視する
+    #x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=7)
+
+    # 入力はグレースケール1チャンネル
+    input_channel_count = 1
+    # 出力はグレースケール1チャンネル
+    output_channel_count = 1
+    # ハイパーパラメータ
+    BATCH_SIZE = 4
+    NUM_EPOCH = 30
+
+    kf = KFold(n_splits=4, shuffle=True)
+    # kFoldループを行う(36データを4つに分割)
+    for train_index, val_index in kf.split(x, y):
+        x_train = x[train_index]
+        y_train = y[train_index]
+        x_validation = x[val_index]
+        y_validation = y[val_index]
+
+        print(x_train.shape, x_validation.shape)
+
+        # SegNetの定義
+        model = segnet(input_channel_count, output_channel_count, FIRST_LAYER_FILTER_COUNT)
+        model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-3), metrics=[dice_coefficient, 'accuracy'])
+        history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
+                            validation_data=(x_validation, y_validation))
+
+
+
+
+
+
+
+
+
+    return 0

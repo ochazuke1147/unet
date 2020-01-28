@@ -21,7 +21,10 @@ total_frequency = []
 for i in range(1000):
     total_frequency.append(0)
 
-for video in video_paths:
+for video in video_paths[:]:
+    registrant_video_path = video
+    db = AkazeDB('name', registrant_video_path)
+    db.filter_keypoints(3, 10)
     for user_video in video_paths:
         if user_video == video:
             print('skip')
@@ -30,11 +33,9 @@ for video in video_paths:
         FAR_list = []
 
         user_video_path = user_video
-        registrant_video_path = video
-        db = AkazeDB(video_paths[0], registrant_video_path)
-        db.filter_keypoints(3, 10)
+
         #print(db.keypoints_DB_number)
-        match_numbers_self = (db.check_matches(registrant_video_path, check_number=100, first_frame_number=0, skip_number=1, mode='SegNet'))
+        match_numbers_self = (db.check_matches(user_video_path, check_number=150, first_frame_number=0, skip_number=1, mode='opening'))
         #print(db.registrant)
         for i in [i / 100 for i in range(1, 101)]:
             #print(i)

@@ -84,7 +84,7 @@ def segnet_masking(gray_image):
 
 def opening_masking(gray_image):
     kernel = np.ones((15, 15), np.uint8)
-    tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,5)), iterations=20)
+    tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,15)), iterations=20)
 
     #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, kernel, iterations=10)
 
@@ -107,7 +107,7 @@ def opening_masking(gray_image):
     #cv2.imshow('', masked)
     #cv2.waitKey()
 
-    return mask
+    return masked
 
 
 
