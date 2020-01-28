@@ -194,7 +194,7 @@ def segnet_predict():
 def cross_validation_segnet():
     from sklearn.model_selection import KFold
     from sklearn.model_selection import train_test_split
-    from src.plot import plot_loss_accuracy
+    from src.plot import plot_loss_accuracy, plot_dice_coefficient_cv
 
     # training_validation dataset path
     training_validation_path = 'datasets' + os.sep + 'training_validation'
@@ -210,11 +210,15 @@ def cross_validation_segnet():
     # 出力はグレースケール1チャンネル
     output_channel_count = 1
     # ハイパーパラメータ
-    BATCH_SIZE = 4
-    NUM_EPOCH = 3
+    BATCH_SIZE = 8
+    NUM_EPOCH = 300
 
     # dice係数の最終値を記憶するlist
-    dice_list = []
+    final_dices = []
+    # dice係数のlistを記憶するlist
+    dice_lists = []
+
+    label_names = ['1st', '2nd', '3rd', '4th']
 
     kf = KFold(n_splits=4, shuffle=True)
     # kFoldループを行う(36データを4つに分割)
@@ -233,8 +237,11 @@ def cross_validation_segnet():
                             validation_data=(x_validation, y_validation))
 
         # dice_coefficientの最終値を記録
-        dice_list.append(history.history['dice_coefficient'][-1])
+        final_dices.append(history.history['dice_coefficient'][-1])
+        dice_lists.append(history.history['dice_coefficient'])
         plot_loss_accuracy(history)
 
-    print(dice_list)
+    print(final_dices)
+    print('平均精度', np.mean(final_dices))
+    plot_dice_coefficient_cv(dice_lists, label_names)
     return 0

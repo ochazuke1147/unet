@@ -58,6 +58,20 @@ def plot_dice_coefficient_compare(thetas1, dices1, label1, thetas2, dices2, labe
     plt.close()
 
 
+# plot_dice_coefficient()の交差検証用
+def plot_dice_coefficient_cv(dice_lists, label_names):
+    fig = plt.figure()
+    for i, dice_list in enumerate(dice_lists):
+        plt.plot(dice_list, label=label_names[i])
+
+    plt.xlabel('epoch')
+    plt.ylabel('accuracy')
+    plt.legend()
+    plt.show()
+    fig.savefig('./thesis/accuracy_compare.png')
+    plt.close()
+
+
 # マッチ頻度を比較してプロットする関数
 def plot_match_frequency_compare(match_num1, frequency1, label1, match_num2, frequency2, label2):
     fig = plt.figure()
