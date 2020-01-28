@@ -194,6 +194,7 @@ def segnet_predict():
 def cross_validation_segnet():
     from sklearn.model_selection import KFold
     from sklearn.model_selection import train_test_split
+    from src.plot import plot_loss_accuracy
 
     # training_validation dataset path
     training_validation_path = 'datasets' + os.sep + 'training_validation'
@@ -210,7 +211,10 @@ def cross_validation_segnet():
     output_channel_count = 1
     # ハイパーパラメータ
     BATCH_SIZE = 4
-    NUM_EPOCH = 30
+    NUM_EPOCH = 3
+
+    # dice係数の最終値を記憶するlist
+    dice_list = []
 
     kf = KFold(n_splits=4, shuffle=True)
     # kFoldループを行う(36データを4つに分割)
@@ -228,12 +232,9 @@ def cross_validation_segnet():
         history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                             validation_data=(x_validation, y_validation))
 
+        # dice_coefficientの最終値を記録
+        dice_list.append(history.history['dice_coefficient'][-1])
+        plot_loss_accuracy(history)
 
-
-
-
-
-
-
-
+    print(dice_list)
     return 0
