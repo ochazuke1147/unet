@@ -126,7 +126,7 @@ def segnet_predict():
     import cv2
 
     rotation = False
-    segmentation_test = True
+    segmentation_test = False
 
     dice_sum_previous = 0
     dice_sum_proposed = 0
