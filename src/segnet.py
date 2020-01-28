@@ -208,10 +208,12 @@ def cross_validation_segnet():
     training_validation_path = 'datasets' + os.sep + 'training_validation'
 
     # 学習・検証用データセットのロード
-    x, file_names = load_x(training_validation_path + os.sep + 'image')
-    y = load_y(training_validation_path + os.sep + 'label')
+    x_all, file_names = load_x(training_validation_path + os.sep + 'image')
+    y_all = load_y(training_validation_path + os.sep + 'label')
     # testデータの分割だがこれは今回あらかじめ分けておくので無視する
     #x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=7)
+    # 指領域抽出実験用
+    X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
 
     # 入力はグレースケール1チャンネル
     input_channel_count = 1
@@ -219,7 +221,7 @@ def cross_validation_segnet():
     output_channel_count = 1
     # ハイパーパラメータ
     BATCH_SIZE = 8
-    NUM_EPOCH = 3
+    NUM_EPOCH = 300
 
     # dice係数の最終値を記憶するlist
     final_dices = []
@@ -234,11 +236,12 @@ def cross_validation_segnet():
     kf = KFold(n_splits=4, shuffle=True)
     timer = Timer()
     # kFoldループを行う(36データを4つに分割)
-    for train_index, val_index in kf.split(x, y):
-        x_train = x[train_index]
-        y_train = y[train_index]
-        x_validation = x[val_index]
-        y_validation = y[val_index]
+    for train_index, val_index in kf.split(x_all, y_all):
+        print(train_index, val_index)
+        x_train = x_all[train_index]
+        y_train = y_all[train_index]
+        x_validation = x_all[val_index]
+        y_validation = y_all[val_index]
 
         print(x_train.shape, x_validation.shape)
 
@@ -255,26 +258,30 @@ def cross_validation_segnet():
         final_val_dices.append(history.history['val_dice_coefficient'][-1])
         dice_lists.append(history.history['dice_coefficient'])
         plot_loss_accuracy(history)
+        #Y_pred = model.predict(X_test, BATCH_SIZE)
 
         if segmentation_test:
-            # 指領域抽出実験用
-            X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
-
             Y_pred = model.predict(X_test, BATCH_SIZE)
 
             for i, y in enumerate(Y_pred):
                 # testDataフォルダ配下にleft_imagesフォルダを置いている
                 img = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'image' + os.sep + file_names[i], 0)
+                if rotation:
+                    y = cv2.resize(y, (img.shape[0], img.shape[0]))
+                else:
+                    y = cv2.resize(y, (img.shape[1], img.shape[0]))
 
+                # 提案手法
                 y_dn = denormalize_y(y)
                 y_dn = np.uint8(y_dn)
                 # ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
                 ret, mask = cv2.threshold(y_dn, 127, 255, cv2.THRESH_BINARY)
                 # hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
                 mask_binary = normalize_y(mask)
-
+                # 従来手法
                 mask_previous = opening_masking(img)
                 mask_previous_binary = normalize_y(mask_previous)
+                # ラベル読み込み
                 label = cv2.imread(
                     'datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
                 label_binary = normalize_y(label)
@@ -283,9 +290,10 @@ def cross_validation_segnet():
                 dice_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
 
                 print('previous:', dice_previous)
-                dices_previous.append(dices_previous)
+                dices_previous.append(dice_previous)
                 print('proposed:', dice_proposed)
-                dices_proposed.append(dices_proposed)
+                dices_proposed.append(dice_proposed)
+
 
     print(final_dices)
     print('平均訓練精度', np.mean(final_dices))
