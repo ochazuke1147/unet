@@ -195,6 +195,7 @@ def cross_validation_segnet():
     from sklearn.model_selection import KFold
     from sklearn.model_selection import train_test_split
     from src.plot import plot_loss_accuracy, plot_dice_coefficient_cv
+    from src.timer import Timer
 
     # training_validation dataset path
     training_validation_path = 'datasets' + os.sep + 'training_validation'
@@ -215,12 +216,16 @@ def cross_validation_segnet():
 
     # dice係数の最終値を記憶するlist
     final_dices = []
+    final_val_dices = []
     # dice係数のlistを記憶するlist
     dice_lists = []
+
+    training_times = []
 
     label_names = ['1st', '2nd', '3rd', '4th']
 
     kf = KFold(n_splits=4, shuffle=True)
+    timer = Timer()
     # kFoldループを行う(36データを4つに分割)
     for train_index, val_index in kf.split(x, y):
         x_train = x[train_index]
@@ -233,15 +238,23 @@ def cross_validation_segnet():
         # SegNetの定義
         model = segnet(input_channel_count, output_channel_count, FIRST_LAYER_FILTER_COUNT)
         model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-3), metrics=[dice_coefficient, 'accuracy'])
+        timer.reset()
         history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                             validation_data=(x_validation, y_validation))
+        training_times.append(timer.time_elapsed())
 
         # dice_coefficientの最終値を記録
         final_dices.append(history.history['dice_coefficient'][-1])
+        final_val_dices.append(history.history['val_dice_coefficient'][-1])
         dice_lists.append(history.history['dice_coefficient'])
         plot_loss_accuracy(history)
 
     print(final_dices)
-    print('平均精度', np.mean(final_dices))
+    print('平均訓練精度', np.mean(final_dices))
+    print(final_val_dices)
+    print('平均検証精度', np.mean(final_val_dices))
+    print(training_times)
+    print('平均学習時間', np.mean(training_times))
     plot_dice_coefficient_cv(dice_lists, label_names)
+
     return 0
