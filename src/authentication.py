@@ -18,8 +18,8 @@ class AkazeDB:
             exit(1)
         # preprocess image_DB
         self.image_DB_gray = cv2.cvtColor(self.image_DB, cv2.COLOR_BGR2GRAY)
-        self.image_DB_masked = unet_masking(self.image_DB_gray)
-        #self.image_DB_masked = opening_masking(self.image_DB_gray)
+        #self.image_DB_masked = segnet_masking(self.image_DB_gray)
+        self.image_DB_masked = opening_masking(self.image_DB_gray)
         self.image_DB_processed = high_boost_filter(self.image_DB_masked)
 
         # detect and compute akaze features
@@ -100,26 +100,12 @@ class AkazeDB:
         return filtered_match
 
     # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
-    def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2, mode='U-Net'):
+    def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2):
         from src.unet import UNet
         from src.segnet import segnet
 
         input_channel_count = 1
         output_channel_count = 1
-        if mode == 'U-Net':
-            print('U-Net mode.')
-            first_layer_filter_count = 64
-            network = UNet(input_channel_count, output_channel_count, first_layer_filter_count)
-            model = network.get_model()
-            model.load_weights('unet_weights.hdf5')
-        elif mode == 'SegNet':
-            print('SegNet mode.')
-            first_layer_filter_count = 64
-            model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
-            model.load_weights('segnet_weights.hdf5')
-        else:
-            print('modelが不正です.')
-            #exit(1)
 
         BATCH_SIZE = 1
 
