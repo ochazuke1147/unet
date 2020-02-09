@@ -1,9 +1,0 @@
-# Created by .ignore support plugin (hsz.mobi)
-.idea/
-datasets/
-prediction/
-*_weights.hdf5
-datasets(original)/
-datasets(one finger)/
-thesis/
-*.png
