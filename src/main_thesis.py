@@ -198,5 +198,3 @@ while cap.isOpened():
     elif key == ord('s'):
         cv2.imwrite('thesis/original.png', img)
         cv2.imwrite('thesis/masked.png', img_masked)
-
-

@@ -7,8 +7,9 @@ from src.plot import *
 
 # akaze特徴点を保持し認証を行うクラス
 class AkazeDB:
-    def __init__(self, registrant, video_path, first_image_number=0):
+    def __init__(self, registrant, video_path, first_image_number=0, opening=True):
         self.registrant = registrant
+        self.opening = opening
         self.cap = cv2.VideoCapture(video_path)
         #self.cap.set(cv2.CAP_PROP_POS_FRAMES, first_image_number)
         self.image_number = first_image_number
@@ -18,9 +19,14 @@ class AkazeDB:
             exit(1)
         # preprocess image_DB
         self.image_DB_gray = cv2.cvtColor(self.image_DB, cv2.COLOR_BGR2GRAY)
-        #self.image_DB_masked = segnet_masking(self.image_DB_gray)
-        self.image_DB_masked = opening_masking(self.image_DB_gray)
-        self.image_DB_processed = high_boost_filter(self.image_DB_masked)
+        print(self.image_DB_gray.dtype)
+        if self.opening:
+            self.image_DB_mask, self.image_DB_masked = opening_masking(self.image_DB_gray)
+        else:
+            self.image_DB_mask, self.image_DB_masked = segnet_masking(self.image_DB_gray)
+        self.image_DB_processed = highlight_vein(self.image_DB_masked, self.image_DB_mask)
+        cv2.imshow('', self.image_DB_processed)
+        cv2.waitKey()
 
         # detect and compute akaze features
 
@@ -42,8 +48,10 @@ class AkazeDB:
     def show_keypoints(self):
         image = cv2.drawKeypoints(self.image_DB_processed, self.keypoints_DB, None, color=(0, 0, 255), flags=2)
         cv2.imshow('keypoints_DB', image)
-        cv2.imwrite('thesis/DB_keypoints.png', image)
-        cv2.waitKey()
+        key = cv2.waitKey()
+
+        if key == ord('s'):
+            cv2.imwrite('thesis/DB_keypoints.png', image)
 
     # 特徴点を絞り込むmethod
     def filter_keypoints(self, filter_number, skip_number):
@@ -59,9 +67,11 @@ class AkazeDB:
                 print('image_filter load error!')
             cv2.imwrite('thesis/'+str(filter_count)+'.png', image_filter)
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
-            #image_filter_masked = segnet_masking(image_filter_gray)
-            image_filter_masked = opening_masking(image_filter_gray)
-            image_filter_processed = high_boost_filter(image_filter_masked)
+            if self.opening:
+                image_filter_mask, image_filter_masked = opening_masking(image_filter_gray)
+            else:
+                image_filter_mask, image_filter_masked = segnet_masking(image_filter_gray)
+            image_filter_processed = highlight_vein(image_filter_masked, image_filter_mask)
             keypoints_filter, descriptors_filter = self.akaze.detectAndCompute(image_filter_processed, None)
 
             matches = self.bf_matcher.match(self.descriptors_DB, descriptors_filter)
@@ -122,11 +132,13 @@ class AkazeDB:
                 print('image_user load error!')
             image_user_gray = cv2.cvtColor(image_user, cv2.COLOR_BGR2GRAY)
 
-            #masked = segnet_masking(image_user_gray)
-            masked = opening_masking(image_user_gray)
+            if self.opening:
+                mask, masked = opening_masking(image_user_gray)
+            else:
+                mask, masked = segnet_masking(image_user_gray)
 
             image_user_masked = masked
-            image_user_processed = high_boost_filter(image_user_masked)
+            image_user_processed = highlight_vein(image_user_masked, mask)
             keypoints_user, descriptors_user = self.akaze.detectAndCompute(image_user_processed, None)
 
 
