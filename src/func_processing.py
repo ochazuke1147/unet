@@ -125,6 +125,8 @@ def opening_masking(gray_image):
 
     cv2.equalizeHist(tmp_image, tmp_image)
 
+    timer.time_elapsed()
+
     ret, mask = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
     masked = cv2.bitwise_and(gray_image, mask)

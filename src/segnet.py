@@ -178,16 +178,18 @@ def segnet_predict():
             label = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
             label_binary = normalize_y(label)
 
-            dice_previous = K.get_value(jaccard_coefficient(mask_previous_binary, label_binary))
-            dice_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
+            jaccard_previous = K.get_value(dice_coefficient(mask_previous_binary, label_binary))
+            jaccard_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
 
-            print('previous:', dice_previous)
-            jaccard_sum_previous += dice_previous
-            print('proposed:', dice_proposed)
-            jaccard_sum_proposed += dice_proposed
+            print('previous:', jaccard_previous)
+            jaccard_sum_previous += jaccard_previous
+            print('proposed:', jaccard_proposed)
+            jaccard_sum_proposed += jaccard_proposed
 
-    print('dice_sum_previous:', jaccard_sum_previous)
-    print('dice_sum_proposed:', jaccard_sum_proposed)
+    print('sum_previous:', jaccard_sum_previous)
+    print('sum_proposed:', jaccard_sum_proposed)
+    print('mean_previous:', jaccard_sum_previous/len(Y_pred))
+    print('mean_proposed:', jaccard_sum_proposed/len(Y_pred))
 
     return 0
 

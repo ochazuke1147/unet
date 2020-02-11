@@ -25,5 +25,7 @@ def jaccard_coefficient(y_true, y_pred):
     y_true = K.flatten(y_true)
     y_pred = K.flatten(y_pred)
     intersection = K.sum(y_true * y_pred)
+    union = K.sum(K.maximum(y_pred, y_true))
+    jaccard = intersection / union
 
-    print(max(y_pred, y_true))
+    return jaccard

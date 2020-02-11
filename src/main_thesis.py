@@ -194,7 +194,7 @@ while cap.isOpened():
     ret, img = cap.read()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     #cv2.equalizeHist(img_hist, img_hist)
-    #img_masked = opening_masking(img)
+    img_masked = opening_masking(img)
     img_masked = segnet_masking(img)
     cv2.imshow('', img_masked)
     key = cv2.waitKey()
