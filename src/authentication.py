@@ -7,9 +7,9 @@ from src.plot import *
 
 # akaze特徴点を保持し認証を行うクラス
 class AkazeDB:
-    def __init__(self, registrant, video_path, first_image_number=0, opening=True):
+    def __init__(self, registrant, video_path, first_image_number=0, mask_mode=0):
         self.registrant = registrant
-        self.opening = opening
+        self.mask_mode = mask_mode
         self.cap = cv2.VideoCapture(video_path)
         #self.cap.set(cv2.CAP_PROP_POS_FRAMES, first_image_number)
         self.image_number = first_image_number
@@ -20,11 +20,19 @@ class AkazeDB:
         # preprocess image_DB
         self.image_DB_gray = cv2.cvtColor(self.image_DB, cv2.COLOR_BGR2GRAY)
         print(self.image_DB_gray.dtype)
-        if self.opening:
+        # mask_mode:0 マスクなし
+        if self.mask_mode == 0:
+            self.image_DB_processed = highlight_vein(self.image_DB_gray, masking=False)
+        # mask_mode:1 opening
+        elif self.mask_mode == 1:
             self.image_DB_mask, self.image_DB_masked = opening_masking(self.image_DB_gray)
+            cv2.imwrite('thesis/image_DB_masked.png', self.image_DB_masked)
+            self.image_DB_processed = highlight_vein(self.image_DB_masked, masking=True, mask=self.image_DB_mask)
+        # mask_mode:2 segnet
         else:
             self.image_DB_mask, self.image_DB_masked = segnet_masking(self.image_DB_gray)
-        self.image_DB_processed = highlight_vein(self.image_DB_masked, self.image_DB_mask)
+            self.image_DB_processed = highlight_vein(self.image_DB_masked, masking=True, mask=self.image_DB_mask)
+
         cv2.imshow('', self.image_DB_processed)
         cv2.waitKey()
 
@@ -67,11 +75,18 @@ class AkazeDB:
                 print('image_filter load error!')
             cv2.imwrite('thesis/'+str(filter_count)+'.png', image_filter)
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
-            if self.opening:
+            # mask_mode:0 マスクなし
+            if self.mask_mode == 0:
+                image_filter_processed = highlight_vein(image_filter_gray, masking=False)
+            # mask_mode:1 opening
+            elif self.mask_mode == 1:
                 image_filter_mask, image_filter_masked = opening_masking(image_filter_gray)
+                image_filter_processed = highlight_vein(image_filter_masked, masking=True, mask=image_filter_mask)
+            # mask_mode:2 segnet
             else:
                 image_filter_mask, image_filter_masked = segnet_masking(image_filter_gray)
-            image_filter_processed = highlight_vein(image_filter_masked, image_filter_mask)
+                image_filter_processed = highlight_vein(image_filter_masked, masking=True, mask=image_filter_mask)
+
             keypoints_filter, descriptors_filter = self.akaze.detectAndCompute(image_filter_processed, None)
 
             matches = self.bf_matcher.match(self.descriptors_DB, descriptors_filter)
@@ -132,15 +147,19 @@ class AkazeDB:
                 print('image_user load error!')
             image_user_gray = cv2.cvtColor(image_user, cv2.COLOR_BGR2GRAY)
 
-            if self.opening:
+            # mask_mode:0 マスクなし
+            if self.mask_mode == 0:
+                image_user_processed = highlight_vein(image_user_gray, masking=False)
+            # mask_mode:1 opening
+            elif self.mask_mode == 1:
                 mask, masked = opening_masking(image_user_gray)
+                image_user_processed = highlight_vein(masked, masking=True, mask=mask)
+            # mask_mode:2 segnet
             else:
                 mask, masked = segnet_masking(image_user_gray)
+                image_user_processed = highlight_vein(masked, masking=True, mask=mask)
 
-            image_user_masked = masked
-            image_user_processed = highlight_vein(image_user_masked, mask)
             keypoints_user, descriptors_user = self.akaze.detectAndCompute(image_user_processed, None)
-
 
             #print(descriptors_user.shape)
 

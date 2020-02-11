@@ -18,3 +18,12 @@ def dice_coefficient(y_true, y_pred):
 # ロス関数
 def dice_coefficient_loss(y_true, y_pred):
     return 1.0 - dice_coefficient(y_true, y_pred)
+
+
+# Jaccard係数を計算する関数
+def jaccard_coefficient(y_true, y_pred):
+    y_true = K.flatten(y_true)
+    y_pred = K.flatten(y_pred)
+    intersection = K.sum(y_true * y_pred)
+
+    print(max(y_pred, y_true))

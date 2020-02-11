@@ -27,12 +27,15 @@ def equalize_hist_masked(gray_image, mask):
     return dst
 
 
-def highlight_vein(gray_image, mask):
+def highlight_vein(gray_image, masking=False, mask=None):
     kernel_size = 15
     kernel = np.full((kernel_size, kernel_size), -1, dtype=np.float)
     kernel[7, 7] = 225
 
-    image = equalize_hist_masked(gray_image, mask)
+    if masking:
+        image = equalize_hist_masked(gray_image, mask)
+    else:
+        image = cv2.equalizeHist(gray_image)
     image = cv2.filter2D(image, -1, kernel)
     image = cv2.medianBlur(image, 5)
     #image = cv2.medianBlur(image, 5)
@@ -132,3 +135,11 @@ def opening_masking(gray_image):
     #cv2.waitKey()
 
     return mask, masked
+
+
+def compare_images(img1, img2):
+    img_or = cv2.bitwise_or(img1, img2)
+
+    cv2.imshow('', img_or)
+    cv2.waitKey()
+    cv2.imwrite('or.png', img_or)

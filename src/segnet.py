@@ -13,7 +13,7 @@ from keras.utils import np_utils
 import keras.backend as K
 
 from src.loader import *
-from src.metrics import dice_coefficient, dice_coefficient_loss
+from src.metrics import dice_coefficient, dice_coefficient_loss, jaccard_coefficient
 from src.normalize import denormalize_y
 from src.func_processing import *
 
@@ -128,8 +128,8 @@ def segnet_predict():
     rotation = False
     segmentation_test = True
 
-    dice_sum_previous = 0
-    dice_sum_proposed = 0
+    jaccard_sum_previous = 0
+    jaccard_sum_proposed = 0
 
     if segmentation_test:
         # 指領域抽出実験用
@@ -172,22 +172,22 @@ def segnet_predict():
 
         if segmentation_test:
             img = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'image' + os.sep + file_names[i], 0)
-            mask_previous = opening_masking(img)
+            mask_previous, _ = opening_masking(img)
             mask_previous_binary = normalize_y(mask_previous)
             print(mask_previous_binary.shape)
             label = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
             label_binary = normalize_y(label)
 
-            dice_previous = K.get_value(dice_coefficient(mask_previous_binary, label_binary))
+            dice_previous = K.get_value(jaccard_coefficient(mask_previous_binary, label_binary))
             dice_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
 
             print('previous:', dice_previous)
-            dice_sum_previous += dice_previous
+            jaccard_sum_previous += dice_previous
             print('proposed:', dice_proposed)
-            dice_sum_proposed += dice_proposed
+            jaccard_sum_proposed += dice_proposed
 
-    print('dice_sum_previous:', dice_sum_previous)
-    print('dice_sum_proposed:', dice_sum_proposed)
+    print('dice_sum_previous:', jaccard_sum_previous)
+    print('dice_sum_proposed:', jaccard_sum_proposed)
 
     return 0
 
@@ -279,7 +279,7 @@ def cross_validation_segnet():
                 # hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
                 mask_binary = normalize_y(mask)
                 # 従来手法
-                mask_previous = opening_masking(img)
+                mask_previous, _ = opening_masking(img)
                 mask_previous_binary = normalize_y(mask_previous)
                 # ラベル読み込み
                 label = cv2.imread(

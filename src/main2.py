@@ -23,8 +23,9 @@ for i in range(1000):
 
 for video in video_paths[:]:
     registrant_video_path = video
-    db = AkazeDB('name', registrant_video_path, opening=False)
-    db.filter_keypoints(4, 10)
+    db = AkazeDB('name', registrant_video_path, mask_mode=1)
+    #db.show_keypoints()
+    db.filter_keypoints(2, 10)
     db.show_keypoints()
     for user_video in video_paths:
         break
@@ -34,7 +35,7 @@ for video in video_paths[:]:
 
         FAR_list = []
 
-        user_video_path = user_video
+        user_video_path = user_video1
 
         #print(db.keypoints_DB_number)
         match_numbers_self = (db.check_matches(user_video_path, check_number=150, first_frame_number=0, skip_number=1))

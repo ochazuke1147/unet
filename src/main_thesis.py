@@ -1,5 +1,5 @@
 import cv2
-from src.func_processing import opening_masking, segnet_masking
+from src.func_processing import opening_masking, segnet_masking, compare_images
 from src.plot import plot_FAR_compare
 
 if False:
@@ -177,6 +177,12 @@ if False:
 
     # plot_FAR_compare([i / 100 for i in range(1, 101)], FAR_proposed, 'proposed', [i / 100 for i in range(1, 101)], FAR_previous, 'previous')
     # exit()
+
+img1 = cv2.imread('xor.png', 1)
+img2 = cv2.imread('and.png', 1)
+compare_images(img1, img2)
+
+exit()
 
 
 video_paths = ['./datasets/movie/hayashi_n4.avi', './datasets/movie/kikuchi_n2.avi',

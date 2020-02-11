@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+datasets/
+prediction/
+*_weights.hdf5
+datasets(original)/
+datasets(one finger)/
+thesis/
+*.png
