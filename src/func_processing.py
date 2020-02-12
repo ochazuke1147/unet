@@ -111,10 +111,10 @@ def opening_masking(gray_image):
     from src.timer import Timer
 
     timer = Timer()
-    cv2.imwrite('thesis/original.png', gray_image)
+    #cv2.imwrite('thesis/original.png', gray_image)
     kernel = np.ones((15, 15), np.uint8)
     tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(21,19)), iterations=5)
-    cv2.imwrite('thesis/opening.png', tmp_image)
+    #cv2.imwrite('thesis/opening.png', tmp_image)
     timer.time_elapsed()
 
     #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, kernel, iterations=10)
