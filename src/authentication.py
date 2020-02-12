@@ -190,6 +190,17 @@ class AkazeDB:
 
         return self.frequency
 
+    def check_mean(self, frequency):
+        sum = 0
+        number = 0
+        for i, f in enumerate(frequency):
+            #print(i, f)
+            sum += i*f
+            number += f
+
+        return sum / number
+
+
     # match_numbersを受け取り,threshold以上のマッチ数ならaccept,未満ならrejectとして扱い,受容率を返すmethod
     def check_rate(self, match_numbers, threshold_rate):
         accept_number = 0

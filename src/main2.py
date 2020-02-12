@@ -47,7 +47,7 @@ for video in video_paths[:]:
 
         #print(FAR_list)
 
-    match_numbers_self = (db.check_matches(user_video_path, check_number=150, first_frame_number=0, skip_number=1))
+    match_numbers_self = (db.check_matches(user_video_path, check_number=10, first_frame_number=0, skip_number=1))
     tmp_frequency = db.check_frequency(match_numbers_self)
     for j, f in enumerate(tmp_frequency):
         total_frequency[j] += f
