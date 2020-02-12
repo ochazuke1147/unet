@@ -111,30 +111,35 @@ def opening_masking(gray_image):
     from src.timer import Timer
 
     timer = Timer()
+    cv2.imwrite('thesis/original.png', gray_image)
     kernel = np.ones((15, 15), np.uint8)
-    tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,15)), iterations=10)
+    tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(21,19)), iterations=5)
+    cv2.imwrite('thesis/opening.png', tmp_image)
     timer.time_elapsed()
 
     #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, kernel, iterations=10)
-    #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_ERODE, kernel, iterations=5)
-    #tmp_image = cv2.morphologyEx(tmp_image, cv2.MORPH_ERODE, kernel, iterations=5)
+    #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_ERODE, kernel, iterations=10)
+    #tmp_image = cv2.morphologyEx(tmp_image, cv2.MORPH_DILATE, kernel, iterations=10)
 
     if len(tmp_image.shape) == 3:
         tmp_image = cv2.cvtColor(tmp_image, cv2.COLOR_BGR2GRAY)
         print(0)
 
     cv2.equalizeHist(tmp_image, tmp_image)
+    cv2.imwrite('thesis/equalized.png', tmp_image)
 
     timer.time_elapsed()
 
     ret, mask = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    cv2.imwrite('thesis/binary.png', mask)
 
     masked = cv2.bitwise_and(gray_image, mask)
     mask_rest = cv2.bitwise_not(mask)
     masked = cv2.bitwise_or(masked, mask_rest)
+    cv2.imwrite('masked.png', masked)
 
-    #cv2.imshow('', masked)
-    #cv2.waitKey()
+    cv2.imshow('', masked)
+    cv2.waitKey()
 
     return mask, masked
 

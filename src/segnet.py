@@ -203,8 +203,8 @@ def cross_validation_segnet():
 
     segmentation_test = True
     rotation = False
-    dices_previous = []
-    dices_proposed = []
+    jaccards_previous = []
+    jaccards_proposed = []
 
     # training_validation dataset path
     training_validation_path = 'datasets' + os.sep + 'training_validation'
@@ -288,13 +288,13 @@ def cross_validation_segnet():
                     'datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
                 label_binary = normalize_y(label)
 
-                dice_previous = K.get_value(dice_coefficient(mask_previous_binary, label_binary))
-                dice_proposed = K.get_value(dice_coefficient(mask_binary, label_binary))
+                dice_previous = K.get_value(jaccard_coefficient(mask_previous_binary, label_binary))
+                dice_proposed = K.get_value(jaccard_coefficient(mask_binary, label_binary))
 
                 print('previous:', dice_previous)
-                dices_previous.append(dice_previous)
+                jaccards_previous.append(dice_previous)
                 print('proposed:', dice_proposed)
-                dices_proposed.append(dice_proposed)
+                jaccards_proposed.append(dice_proposed)
 
 
     print(final_dices)
@@ -303,10 +303,10 @@ def cross_validation_segnet():
     print('平均検証精度', np.mean(final_val_dices))
     print(training_times)
     print('平均学習時間', np.mean(training_times))
-    print(dices_previous)
-    print('従来手法精度', np.mean(dices_previous))
-    print(dices_proposed)
-    print('提案手法時間', np.mean(dices_proposed))
+    print(jaccards_previous)
+    print('従来手法精度', np.mean(jaccards_previous))
+    print(jaccards_proposed)
+    print('提案手法時間', np.mean(jaccards_proposed))
 
     plot_dice_coefficient_cv(dice_lists, label_names)
 
