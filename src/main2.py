@@ -23,7 +23,7 @@ for i in range(1000):
 
 for video in video_paths[:]:
     registrant_video_path = video
-    db = AkazeDB('name', registrant_video_path, mask_mode=1)
+    db = AkazeDB('name', registrant_video_path, mask_mode=2)
     #db.show_keypoints()
     db.filter_keypoints(3, 10)
     db.show_keypoints()
@@ -52,7 +52,7 @@ for video in video_paths[:]:
     for j, f in enumerate(tmp_frequency):
         total_frequency[j] += f
 
-#print(total_frequency)
+print(total_frequency)
 
 exit()
 registrant_video_path = video_paths[2]
