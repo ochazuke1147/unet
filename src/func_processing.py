@@ -126,20 +126,20 @@ def opening_masking(gray_image):
         print(0)
 
     cv2.equalizeHist(tmp_image, tmp_image)
-    cv2.imwrite('thesis/equalized.png', tmp_image)
+    #cv2.imwrite('thesis/equalized.png', tmp_image)
 
     timer.time_elapsed()
 
     ret, mask = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    cv2.imwrite('thesis/binary.png', mask)
+    #cv2.imwrite('thesis/binary.png', mask)
 
     masked = cv2.bitwise_and(gray_image, mask)
     mask_rest = cv2.bitwise_not(mask)
     masked = cv2.bitwise_or(masked, mask_rest)
-    cv2.imwrite('masked.png', masked)
+    #cv2.imwrite('masked.png', masked)
 
-    cv2.imshow('', masked)
-    cv2.waitKey()
+    #cv2.imshow('', masked)
+    #cv2.waitKey()
 
     return mask, masked
 
