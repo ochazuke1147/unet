@@ -115,7 +115,7 @@ class AkazeDB:
         #self.show_keypoints()
 
     @staticmethod
-    def filter_matches(matches, threshold=90):
+    def filter_matches(matches, threshold=80):
         filtered_match = []
         for match in matches:
             if match.distance < threshold:
