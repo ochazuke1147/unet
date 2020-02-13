@@ -131,6 +131,9 @@ def segnet_predict():
     jaccard_sum_previous = 0
     jaccard_sum_proposed = 0
 
+    time_previous = [0, 0, 0, 0]
+    time_proposed = [0, 0, 0]
+
     if segmentation_test:
         # 指領域抽出実験用
         X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
@@ -172,7 +175,13 @@ def segnet_predict():
 
         if segmentation_test:
             img = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'image' + os.sep + file_names[i], 0)
-            mask_previous, _ = opening_masking(img)
+            mask_previous, _, time_list_previous = opening_masking(img)
+            time_previous[0] += time_list_previous[0]
+            time_previous[1] += time_list_previous[1] - time_list_previous[0]
+            time_previous[2] += time_list_previous[2] - time_list_previous[1]
+            time_previous[3] += time_list_previous[3] - time_list_previous[2]
+            print(time_previous)
+
             mask_previous_binary = normalize_y(mask_previous)
             print(mask_previous_binary.shape)
             label = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
