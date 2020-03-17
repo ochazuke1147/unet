@@ -31,6 +31,7 @@ video_paths = ['./datasets/movie/hayashi_n4.avi', './datasets/movie/kikuchi_n2.a
                './datasets/movie/kurose_n1.avi', './datasets/movie/okazawa8.avi']
 
 
+
 total_frequency = []
 for i in range(1000):
     total_frequency.append(0)
