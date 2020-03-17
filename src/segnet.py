@@ -124,15 +124,16 @@ def train_segnet():
 # prediction using SegNet
 def segnet_predict():
     import cv2
+    from src.timer import Timer
 
     rotation = False
-    segmentation_test = True
+    segmentation_test = False
 
     jaccard_sum_previous = 0
     jaccard_sum_proposed = 0
 
     time_previous = [0, 0, 0, 0]
-    time_proposed = [0, 0, 0]
+    time_proposed = 0
 
     if segmentation_test:
         # 指領域抽出実験用
@@ -148,7 +149,9 @@ def segnet_predict():
     model.load_weights('segnet_weights.hdf5')
     model.summary()
     BATCH_SIZE = 8
+    timer = Timer()
     Y_pred = model.predict(X_test, BATCH_SIZE)
+    #time_proposed += timer.time_elapsed()
 
     for i, y in enumerate(Y_pred):
         # testDataフォルダ配下にleft_imagesフォルダを置いている
@@ -160,18 +163,22 @@ def segnet_predict():
         else:
             y = cv2.resize(y, (img.shape[1], img.shape[0]))
 
+
         y_dn = denormalize_y(y)
         y_dn = np.uint8(y_dn)
         #ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
         ret, mask = cv2.threshold(y_dn, 127, 255, cv2.THRESH_BINARY)
+
         #hist, bins = np.histogram(mask.ravel(), 256, [0, 256])
         mask_binary = normalize_y(mask)
 
-        #masked = cv2.bitwise_and(img, mask)
-        #mask_rest = cv2.bitwise_not(mask)
-        #masked = cv2.bitwise_or(masked, mask_rest)
+        timer.reset()
+        masked = cv2.bitwise_and(img, mask)
+        mask_rest = cv2.bitwise_not(mask)
+        masked = cv2.bitwise_or(masked, mask_rest)
         #image_user_processed = high_boost_filter(masked)
         #cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
+        time_proposed += timer.time_elapsed()
 
         if segmentation_test:
             img = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'image' + os.sep + file_names[i], 0)
@@ -180,7 +187,6 @@ def segnet_predict():
             time_previous[1] += time_list_previous[1] - time_list_previous[0]
             time_previous[2] += time_list_previous[2] - time_list_previous[1]
             time_previous[3] += time_list_previous[3] - time_list_previous[2]
-            print(time_previous)
 
             mask_previous_binary = normalize_y(mask_previous)
             print(mask_previous_binary.shape)
@@ -199,6 +205,8 @@ def segnet_predict():
     print('sum_proposed:', jaccard_sum_proposed)
     print('mean_previous:', jaccard_sum_previous/len(Y_pred))
     print('mean_proposed:', jaccard_sum_proposed/len(Y_pred))
+    print('mean_time_previous:', list(map(lambda x: x / len(Y_pred), time_previous)))
+    print('mean_time_proposed', time_proposed/len(Y_pred))
 
     return 0
 
