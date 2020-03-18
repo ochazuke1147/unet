@@ -28,9 +28,9 @@ def load_x(folder_path, rotate=False, theta=0):
     for i, image_file in enumerate(file_names):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
         if rotate:
-            image = padding_image(image)
+            #image = padding_image(image)
             image = rotate_image(image, theta)
-            cv2.imwrite('./dataset_rotated/image/' + image_file + str(theta) + '.png', image)
+            cv2.imwrite('./rotated_image/' + image_file + str(theta) + '.png', image)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         #images[i] = normalize_x(image)
@@ -50,9 +50,9 @@ def load_y(folder_path, rotate=False, theta=0):
     for i, image_file in enumerate(image_files):
         image = cv2.imread(folder_path + os.sep + image_file, cv2.IMREAD_GRAYSCALE)
         if rotate:
-            image = padding_image(image)
+            #image = padding_image(image)
             image = rotate_image(image, theta)
-            cv2.imwrite('./dataset_rotated/label/' + image_file + str(theta) + '.png', image)
+            cv2.imwrite('./rotated_label/' + image_file + str(theta) + '.png', image)
         image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
         image = image[:, :, np.newaxis]
         images[i] = normalize_y(image)
@@ -73,9 +73,9 @@ def rotate_image(image, theta):
     import cv2
 
     scale = 1.0
-    rotation_center = (int(image.shape[0]/2), int(image.shape[1]/2))
+    rotation_center = (int(image.shape[1]/2), int(image.shape[0]/2))
     rotation_matrix = cv2.getRotationMatrix2D(rotation_center, theta, scale)
-    rotated = cv2.warpAffine(image, rotation_matrix, image.shape, flags=cv2.INTER_CUBIC)
+    rotated = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]), flags=cv2.INTER_CUBIC)
 
     return rotated
 

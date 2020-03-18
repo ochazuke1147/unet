@@ -139,9 +139,9 @@ def train_unet():
         y_validation = load_y_rotation(validation_path + os.sep + 'validation', theta_min, theta_max, theta_interval)
     else:
         # 訓練用imageデータ読み込み
-        x_train, file_names = load_x('datasets' + os.sep + 'training' + os.sep + 'image')
+        x_train, file_names = load_x('datasets' + os.sep + 'Dataset-A' + os.sep + 'training' + os.sep + 'image')
         # 訓練用labelデータ読み込み
-        y_train = load_y('datasets' + os.sep + 'training' + os.sep + 'label')
+        y_train = load_y('datasets' + os.sep + 'Dataset-A' + os.sep + 'training' + os.sep + 'label')
         # 検証用imageデータ読み込み
         x_validation, file_names2 = load_x('datasets' + os.sep + 'validation' + os.sep + 'image')
         # 検証用labelデータ読み込み
