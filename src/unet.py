@@ -10,7 +10,7 @@ from keras.layers.convolutional import Conv2D, ZeroPadding2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.optimizers import Adam
 from src.loader import *
-from src.metrics import dice_coefficient, dice_coefficient_loss
+from src.metrics import dice_coefficient, dice_coefficient_loss, jaccard_coefficient
 from src.normalize import denormalize_y
 import numpy as np
 
@@ -173,8 +173,17 @@ def predict():
     import keras.backend as K
 
     rotation = False
-    # test内の画像で予測
-    X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
+    segmentation_test = True
+
+    jaccard_sum_previous = 0
+    jaccard_sum_proposed = 0
+
+    if segmentation_test:
+        # 指領域抽出実験用
+        X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
+    else:
+        # 普通のpredict
+        X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
 
     input_channel_count = 1
     output_channel_count = 1
@@ -199,9 +208,21 @@ def predict():
         #cv2.imwrite('prediction' + os.sep + file_names[i], y_dn)
 
         y_dn = np.uint8(y_dn)
-        ret, mask = cv2.threshold(y_dn, 0, 255, cv2.THRESH_OTSU)
+        ret, mask = cv2.threshold(y_dn, 127, 255, cv2.THRESH_BINARY)
+        mask_binary = normalize_y(mask)
 
-        cv2.imwrite('prediction(binary)' + os.sep + file_names[i], mask)
+        cv2.imwrite('prediction' + os.sep + file_names[i], mask)
+
+        if segmentation_test:
+            label = cv2.imread('datasets' + os.sep + 'segmentation_test' + os.sep + 'label' + os.sep + file_names[i], 0)
+            label_binary = normalize_y(label)
+
+            jaccard_proposed = K.get_value(jaccard_coefficient(mask_binary, label_binary))
+
+            print('proposed:', jaccard_proposed)
+            jaccard_sum_proposed += jaccard_proposed
+
+    print('mean_proposed:', jaccard_sum_proposed / len(Y_pred))
 
     return 0
 
