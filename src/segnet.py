@@ -127,7 +127,7 @@ def segnet_predict():
     from src.timer import Timer
 
     rotation = False
-    segmentation_test = False
+    segmentation_test = True
 
     jaccard_sum_previous = 0
     jaccard_sum_proposed = 0
@@ -177,7 +177,7 @@ def segnet_predict():
         mask_rest = cv2.bitwise_not(mask)
         masked = cv2.bitwise_or(masked, mask_rest)
         #image_user_processed = high_boost_filter(masked)
-        #cv2.imwrite('prediction' + os.sep + file_names[i], image_user_processed)
+        cv2.imwrite('prediction' + os.sep + file_names[i], mask)
         time_proposed += timer.time_elapsed()
 
         if segmentation_test:
