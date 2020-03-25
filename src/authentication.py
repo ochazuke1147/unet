@@ -33,8 +33,8 @@ class AkazeDB:
             self.image_DB_mask, self.image_DB_masked = segnet_masking(self.image_DB_gray)
             self.image_DB_processed = highlight_vein(self.image_DB_masked, masking=True, mask=self.image_DB_mask)
 
-        cv2.imshow('', self.image_DB_processed)
-        cv2.waitKey()
+        #cv2.imshow('', self.image_DB_processed)
+        #cv2.waitKey()
 
         # detect and compute akaze features
 

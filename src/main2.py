@@ -21,12 +21,12 @@ total_frequency = []
 for i in range(1000):
     total_frequency.append(0)
 
-for video in video_paths[1:]:
+for video in video_paths[0:]:
     registrant_video_path = video
     db = AkazeDB('name', registrant_video_path, mask_mode=2)
     #db.show_keypoints()
     db.filter_keypoints(3, 10)
-    db.show_keypoints()
+    #db.show_keypoints()
     user_video_path = video
 
     #for user_video in video_paths:
@@ -47,7 +47,7 @@ for video in video_paths[1:]:
 
         #print(FAR_list)
 
-    match_numbers_self = (db.check_matches(user_video_path, check_number=10, first_frame_number=0, skip_number=1))
+    match_numbers_self = (db.check_matches(user_video_path, check_number=100, first_frame_number=1, skip_number=2))
     tmp_frequency = db.check_frequency(match_numbers_self)
     for j, f in enumerate(tmp_frequency):
         total_frequency[j] += f
