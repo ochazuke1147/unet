@@ -21,7 +21,7 @@ total_frequency = []
 for i in range(1000):
     total_frequency.append(0)
 
-for video in video_paths[:]:
+for video in video_paths[1:]:
     registrant_video_path = video
     db = AkazeDB('name', registrant_video_path, mask_mode=2)
     #db.show_keypoints()
