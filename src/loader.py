@@ -4,6 +4,7 @@ from src.normalize import normalize_x, normalize_y
 
 
 # 受け取ったパス下のファイル/ディレクトリのうち,'.DS_Store'以外のファイルのlistを返す関数
+# get file names in folder_path
 def load_file(folder_path):
     import os
 
@@ -14,9 +15,8 @@ def load_file(folder_path):
     return file_list
 
 
-
-
 # 受け取ったパス下の静脈画像をグレースケールで読み込み,ファイル名とセットで返す関数
+# load vein images as grayscale images
 def load_x(folder_path, rotate=False, theta=0):
     import os
     import cv2
@@ -39,6 +39,7 @@ def load_x(folder_path, rotate=False, theta=0):
 
 
 # ラベル画像をグレースケールで読み込んで返す関数
+# load label images as grayscale images
 def load_y(folder_path, rotate=False, theta=0):
     import os
     import cv2
@@ -60,6 +61,7 @@ def load_y(folder_path, rotate=False, theta=0):
 
 
 # 回転前に正方形領域をcropする関数
+# extract square region from image
 def crop_image(image, width_start):
     import cv2
 
@@ -69,6 +71,7 @@ def crop_image(image, width_start):
 
 
 # グレースケール画像を回転して返す関数
+# rotate grayscale image by theta degrees
 def rotate_image(image, theta):
     import cv2
 
@@ -81,6 +84,7 @@ def rotate_image(image, theta):
 
 
 # 黒背景を追加して返す関数
+# add black background
 def padding_image(image):
     import cv2
     height, width = image.shape[:2]
@@ -95,6 +99,7 @@ def padding_image(image):
 
 
 # 指定されたパス下の静脈画像を指定された回転角度で水増ししてファイル名とセットで返す関数
+# same as load_x (add rotated images)
 def load_x_rotation(folder_path, theta_min, theta_max, interval):
     from src.unet import IMAGE_SIZE
 
@@ -110,6 +115,7 @@ def load_x_rotation(folder_path, theta_min, theta_max, interval):
 
 
 # 指定されたパス下のラベル画像を指定された回転角度で水増しして返す関数
+# same as load_y (add rotated images)
 def load_y_rotation(folder_path, theta_min, theta_max, interval):
     from src.unet import IMAGE_SIZE
 

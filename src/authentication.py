@@ -6,6 +6,7 @@ from src.plot import *
 
 
 # akaze特徴点を保持し認証を行うクラス
+# class for detecting AKAZE keypoints and authentication
 class AkazeDB:
     def __init__(self, registrant, video_path, first_image_number=0, mask_mode=0):
         self.registrant = registrant
@@ -20,15 +21,15 @@ class AkazeDB:
         # preprocess image_DB
         self.image_DB_gray = cv2.cvtColor(self.image_DB, cv2.COLOR_BGR2GRAY)
         print(self.image_DB_gray.dtype)
-        # mask_mode:0 マスクなし
+        # mask_mode:0 no masking
         if self.mask_mode == 0:
             self.image_DB_processed = highlight_vein(self.image_DB_gray, masking=False)
-        # mask_mode:1 opening
+        # mask_mode:1 opening(morphology transformation)
         elif self.mask_mode == 1:
             self.image_DB_mask, self.image_DB_masked = opening_masking(self.image_DB_gray)
             cv2.imwrite('thesis/image_DB_masked.png', self.image_DB_masked)
             self.image_DB_processed = highlight_vein(self.image_DB_masked, masking=True, mask=self.image_DB_mask)
-        # mask_mode:2 segnet
+        # mask_mode:2 segnet(encoder-decoder)
         else:
             self.image_DB_mask, self.image_DB_masked = segnet_masking(self.image_DB_gray)
             self.image_DB_processed = highlight_vein(self.image_DB_masked, masking=True, mask=self.image_DB_mask)
@@ -37,7 +38,6 @@ class AkazeDB:
         #cv2.waitKey()
 
         # detect and compute akaze features
-
         self.akaze = cv2.AKAZE_create()
         self.keypoints_DB, self.descriptors_DB = self.akaze.detectAndCompute(self.image_DB_processed, None)
         self.bf_matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
@@ -53,15 +53,17 @@ class AkazeDB:
         self.threshold_filter = 70
         self.threshold_check_rate = 0.8
 
+    # method for check keypoints in DB
     def show_keypoints(self):
         image = cv2.drawKeypoints(self.image_DB_processed, self.keypoints_DB, None, color=(0, 0, 255), flags=2)
         cv2.imshow('keypoints_DB', image)
         key = cv2.waitKey()
-
+        # press 's' to save the keypoints image
         if key == ord('s'):
             cv2.imwrite('thesis/DB_keypoints.png', image)
 
     # 特徴点を絞り込むmethod
+    # method to get good keypoints
     def filter_keypoints(self, filter_number, skip_number):
         filter_count = 0
         filtered_keypoints_DB = []
@@ -75,14 +77,14 @@ class AkazeDB:
                 print('image_filter load error!')
             cv2.imwrite('thesis/'+str(filter_count)+'.png', image_filter)
             image_filter_gray = cv2.cvtColor(image_filter, cv2.COLOR_BGR2GRAY)
-            # mask_mode:0 マスクなし
+            # mask_mode:0 no masking
             if self.mask_mode == 0:
                 image_filter_processed = highlight_vein(image_filter_gray, masking=False)
-            # mask_mode:1 opening
+            # mask_mode:1 opening(morphology transformation)
             elif self.mask_mode == 1:
                 image_filter_mask, image_filter_masked = opening_masking(image_filter_gray)
                 image_filter_processed = highlight_vein(image_filter_masked, masking=True, mask=image_filter_mask)
-            # mask_mode:2 segnet
+            # mask_mode:2 segnet(encoder-decoder
             else:
                 image_filter_mask, image_filter_masked = segnet_masking(image_filter_gray)
                 image_filter_processed = highlight_vein(image_filter_masked, masking=True, mask=image_filter_mask)
@@ -115,6 +117,7 @@ class AkazeDB:
         #self.show_keypoints()
 
     @staticmethod
+    # method for filtering keypoints matching
     def filter_matches(matches, threshold=80):
         filtered_match = []
         for match in matches:
@@ -125,6 +128,7 @@ class AkazeDB:
         return filtered_match
 
     # DBとのマッチングを行い,各画像とのマッチ数をlistで返すmethod
+    # method for matching with DB and returning the numbers of matched keypoints with each image
     def check_matches(self, video_path, check_number, first_frame_number=0, skip_number=2):
         from src.unet import UNet
         from src.segnet import segnet
@@ -147,14 +151,14 @@ class AkazeDB:
                 print('image_user load error!')
             image_user_gray = cv2.cvtColor(image_user, cv2.COLOR_BGR2GRAY)
 
-            # mask_mode:0 マスクなし
+            # mask_mode:0 no masking
             if self.mask_mode == 0:
                 image_user_processed = highlight_vein(image_user_gray, masking=False)
-            # mask_mode:1 opening
+            # mask_mode:1 opening(morphology transformation)
             elif self.mask_mode == 1:
                 mask, masked = opening_masking(image_user_gray)
                 image_user_processed = highlight_vein(masked, masking=True, mask=mask)
-            # mask_mode:2 segnet
+            # mask_mode:2 segnet(encoder-decoder)
             else:
                 mask, masked = segnet_masking(image_user_gray)
                 image_user_processed = highlight_vein(masked, masking=True, mask=mask)
@@ -176,6 +180,7 @@ class AkazeDB:
         return match_numbers
 
     # マッチ数の頻度ヒストグラムを出力するmethod
+    # this method returns the histogram of the numbers of matching
     def check_frequency(self, match_numbers):
         self.frequency = []
         for i in range(self.keypoints_DB_number + 1):
@@ -190,6 +195,7 @@ class AkazeDB:
 
         return self.frequency
 
+    # this method returns the mean of histogram
     def check_mean(self, frequency):
         sum = 0
         number = 0
@@ -200,8 +206,8 @@ class AkazeDB:
 
         return sum / number
 
-
     # match_numbersを受け取り,threshold以上のマッチ数ならaccept,未満ならrejectとして扱い,受容率を返すmethod
+    # this method receives match_numbers and returns acceptance rate(number=>threshold: accept)
     def check_rate(self, match_numbers, threshold_rate):
         accept_number = 0
         for match_number in match_numbers:
@@ -212,16 +218,19 @@ class AkazeDB:
         return accept_rate
 
     # FRRを計算するmethod
+    # this method returns FRR
     def calc_FRR(self, match_numbers, threshold_rate):
         FRR = 1 - self.check_rate(match_numbers, threshold_rate)
         return FRR
 
     # FARを計算するmethod
+    # this method returns FAR
     def calc_FAR(self, match_numbers, threshold_rate):
         FAR = self.check_rate(match_numbers, threshold_rate)
         return FAR
 
     # EERを計算するmethod
+    # this method returns ERR
     def calc_EER(self, match_numbers_self, match_numbers_others):
         list_FRR = []
         list_FAR = []

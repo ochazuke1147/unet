@@ -1,8 +1,10 @@
 # 学習推移をプロットする関数群
+# functions fot plotting
 import matplotlib.pyplot as plt
 
 
 # historyを受け取りloss,accuracyの推移グラフを出力する関数
+# get graph of loss and accuracy
 def plot_loss_accuracy(history):
     fig, (axL, axR) = plt.subplots(ncols=2, figsize=(10, 4))
 
@@ -34,6 +36,7 @@ def plot_loss_accuracy(history):
 
 
 # 回転角度に対するdice係数の推移をプロットする関数
+# plot dice coefficient from rotated images
 def plot_dice_coefficient(thetas, dices):
     fig = plt.figure()
     plt.plot(thetas, dices, label='original dataset')
@@ -46,6 +49,7 @@ def plot_dice_coefficient(thetas, dices):
 
 
 # plot_dice_coefficient()の拡張版
+# same as plot_dice_coefficient() (compare two data)
 def plot_dice_coefficient_compare(thetas1, dices1, label1, thetas2, dices2, label2):
     fig = plt.figure()
     plt.plot(thetas1, dices1, label=label1)
@@ -59,6 +63,7 @@ def plot_dice_coefficient_compare(thetas1, dices1, label1, thetas2, dices2, labe
 
 
 # plot_dice_coefficient()の交差検証用
+# plot_dice_coefficient() for cross validation
 def plot_dice_coefficient_cv(dice_lists, label_names):
     fig = plt.figure()
     for i, dice_list in enumerate(dice_lists):
@@ -73,11 +78,12 @@ def plot_dice_coefficient_cv(dice_lists, label_names):
 
 
 # マッチ頻度を比較してプロットする関数
+# compare matching histogram
 def plot_match_frequency_compare(match_num1, frequency1, label1, match_num2, frequency2, label2):
     fig = plt.figure()
     plt.plot(match_num1, frequency1, label=label1)
     plt.plot(match_num2, frequency2, label=label2)
-    plt.ylim(0, 30)
+    plt.ylim(0, 10)
     plt.xlabel('Number of matched keypoints')
     plt.ylabel('Frequency')
     plt.legend()
@@ -86,6 +92,7 @@ def plot_match_frequency_compare(match_num1, frequency1, label1, match_num2, fre
     plt.close()
 
 
+# show image histogram
 def show_hist(gray_image):
     import cv2
     import matplotlib.pyplot as plt
@@ -106,6 +113,7 @@ def show_hist(gray_image):
 
 
 # FARを比較プロットする関数
+# compare FAR
 def plot_FAR_compare(threshold1, FAR1, label1, threshold2, FAR2, label2):
     fig = plt.figure()
     plt.plot(threshold1, FAR1, label=label1)

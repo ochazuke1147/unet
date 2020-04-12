@@ -1,9 +1,11 @@
 # U-Netを操作するクラス,関数群
+# this code defines U-Net model architecture
+
 import os
 if os.name == 'posix':
     print('on macOS')
-    import plaidml.keras
-    plaidml.keras.install_backend()
+    #import plaidml.keras
+    #plaidml.keras.install_backend()
 from keras.models import Model
 from keras.layers import Input, LeakyReLU, BatchNormalization, Activation, Dropout
 from keras.layers.convolutional import Conv2D, ZeroPadding2D, Conv2DTranspose
@@ -15,15 +17,18 @@ from src.normalize import denormalize_y
 import numpy as np
 
 
-# imageは(256, 256, 1)で読み込み
+# imageは(128, 128, 1)で読み込み
+# load image as (128, 128, 1) size (128x128, grayscale)
 IMAGE_SIZE = 128
-# 一番初めのConvolutionフィルタ枚数は32
+# 一番初めのConvolutionフィルタ枚数は64
+# set model parameter
 FIRST_LAYER_FILTER_COUNT = 64
 
 # convolution後のshape_size=(size_old-filter_size)/stride+1
 
 
 # U-Netのネットワークを構築するクラス
+# U-Net model definition
 class UNet(object):
     def __init__(self, input_channel_count, output_channel_count, first_layer_filter_count):
         # 以下,first_layer_filter_count:Nと表記
@@ -119,6 +124,7 @@ class UNet(object):
 
 
 # U-Netをtrainingする関数
+# for training U-Net
 def train_unet():
     rotation = False
     theta_min = 0
@@ -130,8 +136,10 @@ def train_unet():
 
     if rotation:
         # 訓練用imageデータ読み込み
+        # load images for training
         x_train, file_names = load_x_rotation(training_path + os.sep + 'image', theta_min, theta_max, theta_interval)
         # 訓練用labelデータ読み込み
+        # load label images for training
         y_train = load_y_rotation(training_path + os.sep + 'label', theta_min, theta_max, theta_interval)
         # 検証用imageデータ読み込み
         x_validation, file_names2 = load_x_rotation(validation_path + os.sep + 'validation', theta_min, theta_max, theta_interval)
@@ -143,23 +151,30 @@ def train_unet():
         # 訓練用labelデータ読み込み
         y_train = load_y('datasets' + os.sep + 'Dataset-B' + os.sep + 'training' + os.sep + 'label')
         # 検証用imageデータ読み込み
+        # load images for validation
         x_validation, file_names2 = load_x('datasets' + os.sep + 'validation' + os.sep + 'image')
         # 検証用labelデータ読み込み
+        # load label images for validation
         y_validation = load_y('datasets' + os.sep + 'validation' + os.sep + 'label')
 
     # 入力はグレースケール1チャンネル
+    # input: grayscale 1ch
     input_channel_count = 1
     # 出力はグレースケール1チャンネル
+    # output: grayscale 1ch
     output_channel_count = 1
 
     # U-Netの生成
+    # build U-Net model
     network = UNet(input_channel_count, output_channel_count, FIRST_LAYER_FILTER_COUNT)
     model = network.get_model()
     model.compile(loss=dice_coefficient_loss, optimizer=Adam(lr=1e-3), metrics=[dice_coefficient, 'accuracy'])
 
+    # batch size
     BATCH_SIZE = 8
-    # 20エポック回せば十分
-    NUM_EPOCH = 500
+    # epoch number
+    NUM_EPOCH = 50
+    # get training history
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NUM_EPOCH, verbose=1,
                         validation_data=(x_validation, y_validation))
     model.save_weights('unet_weights.hdf5')
@@ -168,6 +183,7 @@ def train_unet():
 
 
 # 学習後のU-Netによる予測を行う関数
+# prediction by U-Net
 def predict():
     import cv2
     import keras.backend as K
@@ -180,9 +196,10 @@ def predict():
 
     if segmentation_test:
         # 指領域抽出実験用
+        # for segmentation test
         X_test, file_names = load_x('datasets' + os.sep + 'segmentation_test' + os.sep + 'image', rotation)
     else:
-        # 普通のpredict
+        # normal predict
         X_test, file_names = load_x('datasets' + os.sep + 'test' + os.sep + 'image', rotation)
 
     input_channel_count = 1
@@ -228,6 +245,7 @@ def predict():
 
 
 # test画像を回転させながら予測を行う関数
+# prediction with rotation
 def predict_rotation():
     import cv2
     import keras.backend as K
@@ -273,7 +291,6 @@ def predict_rotation():
             y_dn_uint8 = y_dn.astype(np.uint8)
 
             print(file_names[i], theta, y_dn_uint8.dtype)
-
 
             #out.write(y_dn_uint8)
             #cv2.imwrite('./prediction/' + file_names[i] + str(theta) + '.png', y_dn)

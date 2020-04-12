@@ -1,8 +1,10 @@
 # lossの計算関数群
+# functions for calculating loss
 import keras.backend as K
 
 
 # ダイス係数を計算する関数
+# calculate dice coefficient
 def dice_coefficient(y_true, y_pred):
     y_true = K.flatten(y_true)
     y_pred = K.flatten(y_pred)
@@ -16,11 +18,13 @@ def dice_coefficient(y_true, y_pred):
 
 
 # ロス関数
+# loss function
 def dice_coefficient_loss(y_true, y_pred):
     return 1.0 - dice_coefficient(y_true, y_pred)
 
 
 # Jaccard係数を計算する関数
+# calculate jaccard coefficient
 def jaccard_coefficient(y_true, y_pred):
     y_true = K.flatten(y_true)
     y_pred = K.flatten(y_pred)

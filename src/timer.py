@@ -2,6 +2,7 @@ import time
 
 
 # タイマーを定義したクラス
+# you can use this class as timer
 class Timer:
     def __init__(self):
         print('Timer started.')
