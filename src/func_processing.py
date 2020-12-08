@@ -4,7 +4,7 @@ from src.normalize import *
 
 IMAGE_SIZE = 128
 
-# equalize histogram of image which was masked
+
 def equalize_hist_masked(gray_image, mask):
     hist_mask, bins_mask = np.histogram(mask.ravel(), 256, [0, 256])
     height, width = gray_image.shape[0], gray_image.shape[1]
@@ -27,7 +27,6 @@ def equalize_hist_masked(gray_image, mask):
     return dst
 
 
-# emphasize vein
 def highlight_vein(gray_image, masking=False, mask=None):
     kernel_size = 15
     kernel = np.full((kernel_size, kernel_size), -1, dtype=np.float)
@@ -43,8 +42,6 @@ def highlight_vein(gray_image, masking=False, mask=None):
 
     return image
 
-
-# mask vein image by unet segmentation
 def unet_masking(gray_image):
     from src.unet import UNet
     size = (gray_image.shape[1], gray_image.shape[0])
@@ -74,12 +71,11 @@ def unet_masking(gray_image):
     return masked
 
 
-# mask vein image by encoder-decoder
 def segnet_masking(gray_image):
     from src.segnet import segnet
     from src.timer import Timer
 
-    timer = Timer()
+    # timer = Timer()
     size = (gray_image.shape[1], gray_image.shape[0])
     images = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 1), np.float32)
     image = cv2.resize(gray_image, (IMAGE_SIZE, IMAGE_SIZE))
@@ -91,13 +87,13 @@ def segnet_masking(gray_image):
     output_channel_count = 1
     first_layer_filter_count = 64
     model = segnet(input_channel_count, output_channel_count, first_layer_filter_count)
-    timer.time_elapsed()
+    # timer.time_elapsed()
     model.load_weights('segnet_weights.hdf5')
-    timer.time_elapsed()
+    # timer.time_elapsed()
     BATCH_SIZE = 1
 
     Y_pred = model.predict(images, BATCH_SIZE)
-    timer.time_elapsed()
+    # timer.time_elapsed()
     y = cv2.resize(Y_pred[0], size)
     y_dn = denormalize_y(y)
     y_dn = np.uint8(y_dn)
@@ -111,18 +107,17 @@ def segnet_masking(gray_image):
     return mask, masked
 
 
-# mask vein image by opening processing
 def opening_masking(gray_image):
     from src.timer import Timer
 
-    #time_list =[]
+    time_list =[]
 
-    #timer = Timer()
+    # timer = Timer()
     #cv2.imwrite('thesis/original.png', gray_image)
     kernel = np.ones((15, 15), np.uint8)
     tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(21,19)), iterations=5)
     #cv2.imwrite('thesis/opening.png', tmp_image)
-    #time_list.append(timer.time_elapsed())
+    # time_list.append(timer.time_elapsed())
 
     #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_OPEN, kernel, iterations=10)
     #tmp_image = cv2.morphologyEx(gray_image, cv2.MORPH_ERODE, kernel, iterations=10)
@@ -134,17 +129,17 @@ def opening_masking(gray_image):
 
     cv2.equalizeHist(tmp_image, tmp_image)
     #cv2.imwrite('thesis/equalized.png', tmp_image)
-    #time_list.append(timer.time_elapsed())
+    # time_list.append(timer.time_elapsed())
 
     ret, mask = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     #cv2.imwrite('thesis/binary.png', mask)
-    #time_list.append(timer.time_elapsed())
+    # time_list.append(timer.time_elapsed())
 
     masked = cv2.bitwise_and(gray_image, mask)
     mask_rest = cv2.bitwise_not(mask)
     masked = cv2.bitwise_or(masked, mask_rest)
     #cv2.imwrite('masked.png', masked)
-    #time_list.append(timer.time_elapsed())
+    # time_list.append(timer.time_elapsed())
 
     #cv2.imshow('', masked)
     #cv2.waitKey()

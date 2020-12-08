@@ -3,9 +3,8 @@ from src.func_processing import *
 from src.authentication import *
 from src.loader import *
 from src.plot import *
+from src.timer import *
 
-
-# for calculating matched numbers (you shouldn't use this)
 
 #list_self = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 4, 1, 3, 1, 2, 1, 1, 0, 0, 1, 4, 0, 1, 1, 2, 0, 0, 0, 0, 1, 2, 2, 0, 3, 2, 2, 1, 0, 1, 1, 2, 2, 2, 0, 0, 0, 0, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 0, 0, 0, 2, 0, 1, 2, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 3, 2, 1, 1, 1, 1, 2, 1, 4, 1, 1, 1, 2, 0, 2, 2, 0, 2, 1, 2, 1, 4, 2, 3, 1, 2, 5, 2, 1, 3, 4, 2, 2, 4, 1, 4, 1, 2, 3, 0, 5, 5, 3, 3, 5, 4, 4, 5, 3, 7, 10, 4, 4, 4, 10, 10, 3, 9, 9, 9, 8, 10, 7, 9, 15, 11, 8, 9, 13, 6, 3, 5, 7, 4, 4, 3, 3, 2, 0, 4, 3, 5, 1, 1, 3, 2, 2, 2, 3, 4, 2, 4, 4, 6, 0, 2, 3, 0, 3, 1, 2, 2, 0, 0, 0, 3, 0, 3, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 2, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 2, 2, 2, 0, 0, 2, 2, 4, 0, 2, 3, 0, 0, 3, 2, 0, 2, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 1, 2, 0, 3, 1, 2, 2, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 3, 1, 0, 1, 1, 2, 4, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #list_self = list_self[:700]
@@ -19,37 +18,59 @@ from src.plot import *
 video_paths = ['./datasets/movie/hayashi_n4.avi', './datasets/movie/kikuchi_n2.avi',
                './datasets/movie/kurose_n1.avi', './datasets/movie/okazawa8.avi']
 
-total = []
+total_frequency = []
 
+timer = Timer()
 for i in range(1000):
-    total.append(0)
+    total_frequency.append(0)
 
-for video in video_paths[1:2]:
-    registrant_video_path = video
-    db = AkazeDB('name', registrant_video_path, mask_mode=1)
-    #db.show_keypoints()
+for video_num in range(0, 1):
+    print('video_num:', video_num)
+    timer.time_elapsed()
+    registrant_video_path = video_paths[video_num]
+    db = AkazeDB('name', registrant_video_path, mask_mode=2)
+    # db.show_keypoints()
     db.filter_keypoints(3, 10)
-    #db.show_keypoints()
-    user_video_path = video
+    # db.show_keypoints()
 
-    for user_video in video_paths[1:]:
-        print(user_video)
-        if user_video == video:
-            print('skip')
-            continue
+    check_mode = 1
 
-        user_video_path = user_video
+    if check_mode == 0:
+        print('others mode')
+        tmp_frequency = []
+        # for user_video_num in range(video_num, 3):
+        for user_video_num in range(0, 4):
+            if user_video_num == video_num:
+                print('skip')
+                continue
 
-        print(db.keypoints_DB_number)
-        match_numbers_others = (db.check_matches(user_video_path, check_number=20, first_frame_number=1, skip_number=2))
-        tmp_frequency = db.check_frequency(match_numbers_others)
+            FAR_list = []
+            user_video_path = video_paths[user_video_num]
+
+            print(db.keypoints_DB_number)
+            match_numbers_others = (db.check_matches(user_video_path, check_number=25, first_frame_number=0, skip_number=2))
+            print(db.registrant)
+            tmp_frequency = db.check_frequency(match_numbers_others)
+
+            for j, f in enumerate(tmp_frequency):
+                total_frequency[j] += f
+            # for i in [i / 100 for i in range(1, 101)]:
+            #     print(i)
+            #     FAR_list.append(db.calc_FAR(match_numbers_self, i))
+
+            # print(FAR_list)
+        print(tmp_frequency)
+
+    elif check_mode == 1:
+        print('self mode')
+        user_video_path = video_paths[video_num]
+        match_numbers_self = (db.check_matches(user_video_path, check_number=75, first_frame_number=1, skip_number=2))
+        tmp_frequency = db.check_frequency(match_numbers_self)
         for j, f in enumerate(tmp_frequency):
-            total[j] += f
-        #print(db.registrant)
-        #print(FAR_list)
+            total_frequency[j] += f
 
-
-print(total)
+print('histogram:', total_frequency)
+print('sum:', sum(total_frequency))
 
 exit()
 registrant_video_path = video_paths[2]
